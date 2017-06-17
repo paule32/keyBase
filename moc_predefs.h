@@ -23,7 +23,6 @@
 #define __GCC_IEC_559 2
 #define __FLT_EVAL_METHOD__ 0
 #define __unix__ 1
-#define __cpp_binary_literals 201304
 #define __GCC_ATOMIC_CHAR32_T_LOCK_FREE 2
 #define __x86_64 1
 #define __cpp_variadic_templates 200704
@@ -44,7 +43,6 @@
 #define __UINTMAX_TYPE__ long unsigned int
 #define __linux 1
 #define __DEC32_EPSILON__ 1E-6DF
-#define __OPTIMIZE__ 1
 #define __unix 1
 #define __UINT32_MAX__ 0xffffffffU
 #define __GXX_EXPERIMENTAL_CXX0X__ 1
@@ -96,7 +94,6 @@
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
 #define __INT_LEAST32_MAX__ 0x7fffffff
 #define __DEC32_MIN__ 1E-95DF
-#define __DEPRECATED 1
 #define __cpp_rvalue_references 200610
 #define __DBL_MAX_EXP__ 1024
 #define __DEC128_EPSILON__ 1E-33DL
@@ -127,6 +124,7 @@
 #define __UINT16_MAX__ 0xffff
 #define __DBL_HAS_DENORM__ 1
 #define __UINT8_TYPE__ unsigned char
+#define __NO_INLINE__ 1
 #define __FLT_MANT_DIG__ 24
 #define __VERSION__ "6.3.0"
 #define __UINT64_C(c) c ## UL
@@ -236,7 +234,6 @@
 #define __STDC_UTF_32__ 1
 #define __FXSR__ 1
 #define __DEC_EVAL_METHOD__ 2
-#define __cpp_runtime_arrays 198712
 #define __UINT32_C(c) c ## U
 #define __INTMAX_MAX__ 0x7fffffffffffffffL
 #define __cpp_alias_templates 200704

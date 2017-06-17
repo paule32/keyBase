@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'form.ui'
 **
-** Created by: Qt User Interface Compiler version 5.5.0
+** Created by: Qt User Interface Compiler version 5.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -65,9 +65,9 @@ public:
 
     void retranslateUi(QWidget *Form)
     {
-        Form->setWindowTitle(QApplication::translate("Form", "Form", 0));
-        pushButton_2->setText(QApplication::translate("Form", "PushButton", 0));
-        pushButton->setText(QApplication::translate("Form", "PushButton", 0));
+        Form->setWindowTitle(QApplication::translate("Form", "Form", Q_NULLPTR));
+        pushButton_2->setText(QApplication::translate("Form", "PushButton", Q_NULLPTR));
+        pushButton->setText(QApplication::translate("Form", "PushButton", Q_NULLPTR));
     } // retranslateUi
 
 };

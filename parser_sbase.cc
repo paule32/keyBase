@@ -1,494 +1,327 @@
 #include <stdio.h>
-
 #include <iostream>
-#include <vector>
 
 #include <QString>
 #include <QVariant>
-#include <QMap>
 #include <QMessageBox>
-#include <QRegExp>
-
 #include <QDebug>
 
 int line_no  = 1;
 int file_eof = 0;
+int last_op  = 0;
 
-const int cmd_invalid    = 0;
-const int cmd_assign     = 1;  // var = 12
-const int cmd_assign_new = 2;  // var = new ...
+const int cmd_invalid     = 0;
+const int cmd_assign      = 1;  // var = 12
+const int cmd_assign_plus = 2;  // var = 12 + 44
+const int cmd_assign_new  = 3;  // var = new ...
+
+enum SymbolType_ {
+    NoError,
+    Undefined,
+    NumberError,
+    EndOfText
+};
+SymbolType_ SymbolType;
 
 // -------------------
 // our AST struct ...
 // -------------------
-struct MyNode {
+typedef struct _MyNode {
 public:
-    int command;
-    int counter;
-    QString name;
-    QVariant value;
-    struct MyNode *prev;
-};
-QMap<QString, MyNode> ptr_node;
-struct MyNode prev_node;
+    SymbolType_      command;
+    std::string   id;
+    QChar            op;
+    double         value;
 
-QString newnum;
-QString number, ident;
+    _MyNode * parent;
+    _MyNode * lhs;
+    _MyNode * rhs;
 
-int pos = -1; // buffer position
-bool in_comment  = false;
-bool end_of_file = false;
+    _MyNode() {
+        parent = nullptr;
+        lhs = nullptr;
+        rhs = nullptr;
+    }
 
-// proto types ...
-int  handle_space(char *buffer);
+    ~_MyNode() {
+        delete lhs;
+        delete rhs;
+    }
+}
+MyNode;
+MyNode *eval_ast = nullptr;
 
-// -----------------------------------
-// inline's for code make-up ...
-// -----------------------------------
-int if_overchar(char *buffer) {
-    int c = 1;
-    while (1) {
-        if (++pos > strlen(buffer))
-        return 0;
-        c = buffer[pos];
-        if (c == ' ' || c == '\t') {
+void print_ast()
+{
+    MyNode * tmp = new MyNode;
+    tmp = eval_ast;
+    while (tmp != nullptr) {
+        printf("res: %f\n",tmp->value);
+        tmp = tmp->rhs;
+    }
+}
+
+void add_astnode(char op, double val1, double val2)
+{
+    MyNode * tmp = new MyNode;
+    MyNode * new_node;
+
+    tmp = eval_ast;
+    new_node = new MyNode;
+
+    if (op == '+')
+    new_node->op = '+';
+
+    if (val1 < val2) {
+        new_node->lhs = new MyNode;
+        new_node->lhs->value = val2;
+        tmp = new_node->lhs;
+    }
+    else {
+        std::cout << "A: " << val1;
+        std::cout << "B: " << val2;
+
+        new_node->rhs = new MyNode;
+        new_node->rhs->value = val1;
+        tmp = new_node->rhs;
+    }
+
+    tmp->parent     = new MyNode;
+    tmp->parent->id = std::string("assign");
+
+    eval_ast = tmp;
+
+    std::cout << "C:> " << tmp->value << std::endl;
+}
+
+// ------------------------------------------------------
+// namespace to avoid conflicts with other frameworks ...
+// ------------------------------------------------------
+namespace kallup {
+    QString number, ident;
+
+    int    m_pos = 0; // buffer position
+    char * m_TextBuffer;    // the source code buffer
+
+    // ------------------------------------
+    // cut spaces, and return next char ...
+    // ------------------------------------
+    int SkipWhiteSpaces()
+    {
+        int c = 0;
+        while (1) {
+            c = m_TextBuffer[m_pos++];
+            if (isspace(c))
             continue;
+            break;
         }
-        else if (c == '/') {
-            while (1) {
-                if (++pos > strlen(buffer))
-                return 0;
-                c = buffer[pos];
-                if (c == '/') {
-                    while (1) {
-                        if (++pos > strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if (c == '\n') {
-                            ++line_no;
-                            return 1;
-                        }
-                        else if (c == EOF) {
-                            file_eof = 1;
-                            return 0;
-                        }
-                    }
-                }
-                else if (c == '*') {
-                    while (1) {
-                        if (++pos > strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if (c == '*') {
-                            while (1) {
-                                if (++pos > strlen(buffer))
-                                return 0;
-                                c = buffer[pos];
-                                if (c == '/') {
-                                    return 1;
-                                }
-                                else if (c == '\n') {
-                                    ++line_no;
-                                    continue;
-                                }
-                                else if (c == EOF) {
-                                    file_eof = 1;
-                                    return 0;
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (c == ' ' || c == '\t') {
-                    while (1) {
-                        if (++pos > strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if (c == ' ' || c == '\t') {
-                            continue;
-                        }
-                        else if (c == '\n') {
-                            ++line_no;
-                            break;
-                        }
-                        else if (c == EOF) {
-                            file_eof = 1;
-                            return 0;
-                        }
-                        else {
-                            return 0;
-                        }
-                    }
-                }
-                else if (((c >= 'a') && (c <= 'z'))
-                     ||  ((c >= 'A') && (c <= 'Z'))
-                     ||   (c == '_')) {
-                    ident += c;
-                    while (1) {
-                        if (++pos > strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if (c == ' ' || c == '\t') {
-                            return 1;
-                        }
-                        else if (c == '\n') {
-                            ++line_no;
-                            return 1;
-                        }
-                        else if (c == '=') { //go3:
-                            qDebug() << "=======";
-                            while (1) {
-                                if (++pos > strlen(buffer))
-                                return 0;
-                                c = buffer[pos];
-                                if (c == ' ' || c == '\t') {
-                                    continue;
-                                }
-                                else if (c == '\n') {
-                                    ++line_no;
-                                    continue;
-                                }
-                                else if ((c >= '0') && (c <= '9')) {
-                                    number += c;
-                                    while (1) {
-                                        if (++pos > strlen(buffer))
-                                        return 0;
-                                        c = buffer[pos];
-                                        if ((c >= '0') && (c <= '9')) {
-                                            number += c;
-                                            continue;
-                                        }
-                                        else if (c == ' ' || c == '\t') {
-                                            continue;
-                                        }
-                                        else if (c == '\n') {
-                                            ++line_no;
-                                            continue;
-                                        }
-                                        else if (c == EOF) {
-                                            file_eof = 1;
-                                            return 1;
-                                        }
-                                        else {
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        else if (((c >= 'a') && (c <= 'z'))
-                             ||  ((c >= 'A') && (c <= 'Z'))
-                             ||   (c == '_')) {
-                            ident += c;
-                            continue;
-                        }
-                    }
-                }
-                else if (c == '+' || c == '-' || c == '*') {
-                    return c;
-                }
-                else if (c == '\n') {
-                    ++line_no;
-                    break;
-                }
-                else if (c == EOF) {
-                    file_eof = 1;
-                    return 0;
-                }
-            }
-        }
-        else if (c == EOF) {
-            file_eof = 1;
-            return 1;
-        }
-        else if (c == '\n') {
-            ++line_no;
-            continue;
-        }
-        else if (((c >= 'a') && (c <= 'z'))
-             ||  ((c >= 'A') && (c <= 'Z'))
-             ||   (c == '_')) {
-            ident += c;
-            qDebug() << "ident1: " << ident;
-            while (1) {
-                if (++pos > strlen(buffer))
-                return 0;
-                c = buffer[pos];
-                if (((c >= 'a') && (c <= 'z'))
-                ||  ((c >= 'A') && (c <= 'Z'))
-                ||   (c == '_')) {
-                    ident += c;
-                    qDebug() << "ident2: " << ident;
-                    continue;
-                }
-                if (c == ' ' || c == '\t') {
-                    qDebug() << "--__--";
-                    while (1) {
-                        if (++pos > strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if (c == ' ' || c == '\t') {
-                            qDebug() << "T";
-                            continue;
-                        }
-                        else if (c == '\n') {
-                            ++line_no;
-                            continue;
-                        }
-                        if (c == EOF) {
-                            file_eof = 1;
-                            return 1;
-                        }
-                        else if (c == '=') {
-                            break;
-                        }
-                    }
-                }
-                if (c == EOF) {
-                    file_eof = 1;
-                    return 0;
-                }
-                else if (c == '\n') {
-                    ++line_no;
-                    while (1) {
-                        if (++pos > strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if ((c >= '0') && (c <= '9')) {
-                            number += c;
-                            break;
-                        }
-                        else if (c == ' ' || c == '\t') {
-                            qDebug() << "abc: " << number;
-                            file_eof = 1;
-                            return 1;
-                        }
-                        else if (c == '\n') {
-                            ++line_no;
-                            continue;
-                        }
-                        else if (c == EOF) {
-                            file_eof = 1;
-                            qDebug() << "abc- " << number;
-                            return 1;
-                        }
-                    }
-                }
-                else if (c == EOF) {
-                    file_eof = 1;
-                    return 0;
-                }
-                else if (c == '=') {
-                    qDebug() << "==22===";
-                    while (1) {
-                        if (++pos >= strlen(buffer))
-                        return 0;
-                        c = buffer[pos];
-                        if ((c >= '0') && (c <= '9')) {
-                            qDebug() << c;
-                            while (1) {
-                                if (++pos >= strlen(buffer))
-                                return 1;
-                                c = buffer[pos];
-                                if ((c >= '0') && (c <= '9')) {
-                                    number += c;
-                                    qDebug() << c;
-                                }
-                                if (c == EOF) {
-                                    file_eof = 1;
-                                    qDebug() << "abc- " << number;
-                                    return 1;
-                                }
-                                else if ((c >= '0') && (c <= '9')) {
-                                    number +c;
-                                    continue;
-                                }
-                            }
-                            number += c;
-                            if (++pos >= strlen(buffer)) {
-                                c = buffer[pos];
-                                if (c == EOF) {
-                                    file_eof = 1;
-                                    return 1;
-                                }
-                            }
-                            continue;
-                        }
-                        else if (c == ' ' || c == '\t') {
-                            qDebug() << "abc: " << number;
-                            continue;
-                        }
-                        else if (c == '\n') {
-                            ++line_no;
-                            continue;
-                        }
-                        if (c == EOF) {
-                            file_eof = 1;
-                            qDebug() << "abc- " << number;
-                            return 0;
-                        }
-                    }
-                }
-            }
-        }
-        else if (c == EOF) {
-            file_eof = 1;
-            return 0;
-        }
-        else {
-            return 0;
-        }
-    }
-    return 1;
-}
-
-void handle_ident(int cmd, QString ident, QVariant val)
-{
-    static int counter = 0;
-    QString str;
-
-    prev_node.command  = cmd;
-    prev_node.name     = ident;
-
-    // PRINT
-    if (!(strcmp(  ident.toLower().toLatin1().data(),
-        QString("print").toLower().toLatin1().data()))) {
-        str = QString("cmd@print@%1@%2")
-            .arg(++counter)
-            .arg(val.toString());
-        prev_node.value    = str;
-        ptr_node.insert(str,prev_node);
+        return c;
     }
 
-    // VAR = <expr>
-    else if (cmd == cmd_assign) {
-        str = QString("cmd@assign@%1@%2@%3")
-            .arg(ident)
-            .arg(counter)
-            .arg(val.toString());
-        prev_node.value    = str;
-        ptr_node.insert(str,prev_node);
-    }
-
-    // VAR = NEW <ident> ( )
-    else if (cmd == cmd_assign_new) {
-        str = QString("cmd@new@%1")
-            .arg(ident);
-        prev_node.value    = str;
-        ptr_node.insert(str,prev_node);
-    }
-}
-
-// --------------------------
-// execute collected data ...
-// --------------------------
-bool evaluate(void)
-{
-    bool found = false;
-    QString str;
-    QMapIterator<QString, MyNode> iter(ptr_node);
-    while (iter.hasNext())
-    {   iter.next();
-        str = iter.value().value.toString();
-        QRegExp rex("cmd@(\\w+)@(\\w+)@(\\d+)@(\\d+)");
-        if (rex.indexIn(str) != -1)  {
-            QString sub1 = rex.cap(1);
-            QString sub2 = rex.cap(2);
-            QString sub3 = rex.cap(3); // counter
-            QString sub4 = rex.cap(4);
-
-            if (sub1.toLower() == QString("assign"))
-            {   if (iter.value().name == sub2)
-                {   QVariant val= sub4;
-                    found = true;
-                    int m = 0;
-                    int i;
-                    double d;
-
-                    if (val.convert(QVariant::Int))    {m = 1; i = val.toInt();    }
-                    if (val.convert(QVariant::Double)) {m = 2; d = val.toDouble(); }
-
-                    QString str;
-                    switch (m) {
-                        case 1: str = QString("%1").arg(i); break;
-                        case 2: str = QString("%1").arg(d); break;
-                    }
-
-                    QMessageBox::information(0,"Print Var",
-                    QString("PRINT:  %1").arg(str));
-
-                    break;
-                }
-            }
+    QString GetIdent()
+    {
+        int c = 0;
+        while (1) {
+            c = m_TextBuffer[m_pos++];
+            if (isalpha(c)) {
+                ident += c;
+                continue;
+            }   break;
         }
+        return ident;
     }
-    return true;
-}
-
-QString oldn;
-int op;
-
-
-bool parseText(char *buffer)
-{
-    ident .clear();
-    number.clear();
-
-    int c;
-    if (!(c = if_overchar(buffer))) {
-        if (c == 1)
-        return true ;
-        return false;
-    }   return true ;
-}
 
 #if 0
-qDebug() << "==> " << number;
-qDebug() << QString(":::-> %1 = %2 = %3 ++ %4")
-        .arg(ident)
-        .arg(QChar(c))
-        .arg(number)
-        .arg(oldn);
-
-handle_ident(cmd_assign,ident,number);
-ident .clear();
-number.clear();
-
+    int Match(char *buffer, char expected)
+    {
+        if (SkipWhitespaces() == expected)
+        return expected;
+        throw QString("Expected token '%1' at position: %2")
+            .arg(expected)
+            .arg(pos);
+    }
 #endif
+    QString GetNumber(void)
+    {
+        int c = SkipWhiteSpaces();
 
-
-bool parseText(QString str)
-{
-    char buffer[str.size()+1];
-    bool r = false;
-    try {
-        line_no = 1;
-        pos = -1;
-        file_eof = 0;
-
-        ptr_node.clear();
-        ident .clear();
-        number.clear();
-
-        strcpy(buffer,str.toLatin1().data());
-        std::cout << buffer << "\n";
+        if ((c >= '0') && (c <= '9'))
+        number += c; else
+        throw QString("number expected, but found other chars.\n"
+                      "or Syntax Error.");
 
         while (1) {
-            r = parseText((char*)buffer);
-            if (!r) {
-                if (!file_eof) {
-                    QMessageBox::critical(0,"Error",
-                    QString("Syntax Error in line: %1").arg(line_no));
-                    return false;
-                }
+            c = m_TextBuffer[m_pos];
+            if (isdigit(c)) {
+                number += c;
+                ++m_pos;
+                continue;
             }
-            QMessageBox::information(0,"Info","SUCCESS");
-            //evaluate();
-
-            if (!file_eof) return true;
-            file_eof = 0;
-            continue;
+            else if (c == '.') {
+                number += '.';
+                ++m_pos;
+                continue;
+            }
+            else if (c == EOF || c == 0) {
+                if (number.size() > 0)
+                return number; else
+                throw QString("wrong token as excpected.");
+            }
+            else if (isspace(c)) {
+                if (number.size() > 0)
+                return number;
+                continue;
+            }
+            else {
+                throw QString("number expected, wrong type: >>%1<<").arg(c);
+                break;
+            }
         }
+        return number;
+    }
+
+    template <typename T>
+    struct Token {
+        Token() {
+            qDebug() << "new token";
+        }
+    };
+
+    template < typename T >
+    struct Token<T*> {
+        Token(){ std::cout << "A< T* >" << std::endl; }
+    };
+
+    struct bool_ { };
+    struct int_  { };
+    struct char_ { };
+
+    template <> struct Token<bool> {
+    public:
+        Token() {
+            name  = QString("bool");
+            value = static_cast<bool>(false);
+        }
+        QVariant value;
+        QString  name;
+    };
+
+    template <> struct Token<int> {
+    public:
+        Token() {
+            name  = QString("int");
+            value = static_cast<int>(0);
+        }
+        bool parse() {
+            qDebug() << "parse int";
+            qDebug() << GetNumber();
+            return true;
+        }
+
+        QVariant value;
+        QString  name;
+    };
+
+    template <> struct Token<char> {
+    public:
+        Token() {
+            name  = QString("char");
+            value = QString("");
+        }
+        bool parse() {
+            qDebug() << "parse char";
+            qDebug() << GetIdent();
+            return true;
+        }
+
+        QVariant value;
+        QString  name;
+    };
+
+    Token<bool> bool_;
+    Token<int>  int_;
+    Token<char> char_;
+
+    class ParserCommon {
+    public:
+        ParserCommon(QString src) {
+            m_TextBuffer = new char[src.size()+1];
+            strcpy(m_TextBuffer,src.toLatin1().data());
+        }
+        ~ParserCommon() {
+            delete m_TextBuffer;
+        }
+    };
+
+    // ------------------------------------
+    // wrapper class for token scanning ...
+    // ------------------------------------
+    class grammar {
+    public:
+        grammar() { }
+        grammar & operator << (Token<int> t) {
+            qDebug() << "a token: " << t.name;
+            t.parse();
+            return *this;
+        }
+        grammar & operator + (Token<char> t) {
+            qDebug() << "a token: " << t.name;
+            t.parse();
+            return *this;
+        }
+    };
+
+    // -----------------------------------
+    // parser oode for an dBase parser ...
+    // -----------------------------------
+    class dBase {
+    public:
+        dBase() {
+            qDebug() << "handle dbase grammar...";
+        }
+        void start(QString src)  {
+            ParserCommon pc(src);
+            grammar go;
+
+            // grammar:
+            go  +char_ << int_ << int_ << int_;
+
+            // ---------------------------------
+            // sanity check, if all token read ?
+            // ---------------------------------
+            if (m_pos < strlen(m_TextBuffer))
+            throw QString("not all input are proceed.");
+        }
+    };
+
+    template   <typename T>
+    class Parser: public T {
+    public:
+        Parser() {
+            qDebug() << "parser init.";
+            line_no = 1;
+            m_pos   = 0;
+
+            ident .clear();
+            number.clear();
+
+            eval_ast = new MyNode;
+            eval_ast->parent = new MyNode;
+            eval_ast->parent->id = "root";
+            eval_ast->op  = '+';
+        }
+    };
+}
+
+bool parseText(QString src)
+{
+    try {
+        using namespace kallup;
+        Parser<dBase> p;
+        p.start(src);
+
+        QMessageBox::information(0,"Info","SUCCESS");
+        return true;
     }
     catch (QString &e) {
         QMessageBox::critical(0,"Error",
@@ -496,14 +329,5 @@ bool parseText(QString str)
         .arg(line_no)
         .arg(e));
     }
-    catch (int &e) {
-        if (e > 0) {
-            if (e == 2)
-            QMessageBox::critical(0,"Error",
-            QString("Error in line: %1").arg(line_no));
-            r = false;
-        }
-    }
-
-    return r;
+    return false;
 }
