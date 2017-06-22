@@ -1,5 +1,11 @@
 #include <stdio.h>
+
 #include <iostream>
+#include <string>
+
+#include <boost/variant/recursive_variant.hpp>
+#include <boost/variant/apply_visitor.hpp>
+#include <boost/variant/get.hpp>
 
 #include <QString>
 #include <QVariant>
@@ -102,6 +108,329 @@ namespace kallup {
 
     int    m_pos = 0; // buffer position
     char * m_TextBuffer;    // the source code buffer
+
+    struct add { };
+    struct sub { };
+    struct mul { };
+    struct div { };
+    template <typename OpTag> struct binary_op;
+
+    typedef boost::variant<
+          double
+        , boost::recursive_wrapper< binary_op<add> >
+        , boost::recursive_wrapper< binary_op<sub> >
+        , boost::recursive_wrapper< binary_op<mul> >
+        , boost::recursive_wrapper< binary_op<div> >
+        > expression;
+
+    template <typename OpTag>
+    struct binary_op
+    {
+        expression left;  // variant instantiated here...
+        expression right;
+
+        binary_op( const expression & lhs, const expression & rhs )
+            : left(lhs), right(rhs)
+        {
+        }
+
+        double get(binary_op<sub> *bo)
+        {
+            std::cout << "getter\n";
+
+            ///left  = bo->left ;
+            //right = bo->right;
+
+            //double res = boost::get<double>(left)
+            //           - boost::get<double>(right);
+            return 2.0;
+        }
+
+        binary_op(binary_op<mul> *mul, double val)
+        {
+            std::cout << "mexter" << std::endl;
+            left  = mul;
+            right = val;
+        }
+
+        binary_op(binary_op<sub> *bo)   {
+            std::cout << "-----------------\n";
+
+            std::cout << bo->left  << std::endl;
+            std::cout << bo->right << std::endl;
+
+            if (typeid(bo) == typeid(binary_op<sub>)) {
+                std::cout << " ok = left" << std::endl;
+
+                double res2 = get(&bo);
+
+                std::cout << "==>> " << res2 << std::endl;
+            }
+            else {
+                std::cout << (boost::get<double>(bo->left )
+                            - boost::get<double>(bo->right))
+                          <<  std::endl;
+            }
+        }
+        binary_op(const binary_op<add> &bo)   {
+            //std::cout << bo.left  << std::endl;
+            //std::cout << bo.right << std::endl;
+
+            std::cout << (boost::get<double>(bo.left )
+                        + boost::get<double>(bo.right))
+                      <<  std::endl;
+        }
+        binary_op(const binary_op<mul> &bo)   {
+            std::cout << "mopser" << std::endl;
+            //std::cout << bo.left  << std::endl;
+            //std::cout << bo.right << std::endl;
+
+            left  = bo.left ;
+            right = bo.right;
+
+            std::cout << (boost::get<double>(bo.left )
+                       *  boost::get<double>(bo.right))
+                      <<  std::endl;
+        }
+        binary_op(const binary_op<div> &bo)   {
+            //std::cout << bo.left  << std::endl;
+            //std::cout << bo.right << std::endl;
+
+            std::cout << (boost::get<double>(bo.left )
+                        / boost::get<double>(bo.right))
+                      <<  std::endl;
+        }
+    };
+
+    class calculator: public boost::static_visitor<double> {
+    public:
+        double operator()(double value) const {
+            std::cout << "getter value: " << value << std::endl;
+            return value;
+        }
+        double operator()(const binary_op<add> & binary) const     {
+            return boost::apply_visitor( calculator(), binary.left )
+                 + boost::apply_visitor( calculator(), binary.right );
+        }
+        double operator()(const binary_op<sub> & binary) const     {
+            std::cout << "double subserle" << std::endl;
+            std::cout << binary.left  << std::endl;
+            std::cout << binary.right << std::endl;
+
+            return boost::apply_visitor( calculator(), binary.left )
+                 - boost::apply_visitor( calculator(), binary.right );
+        }
+        double operator()(const binary_op<mul> & binary) const     {
+            std::cout << "double:" << std::endl;
+            std::cout << binary.left  << std::endl;
+            std::cout << binary.right << std::endl;
+
+            return boost::apply_visitor( calculator(), binary.left )
+                 * boost::apply_visitor( calculator(), binary.right );
+        }
+        double operator()(const binary_op<div> & binary) const     {
+            return boost::apply_visitor( calculator(), binary.left )
+                 / boost::apply_visitor( calculator(), binary.right );
+        }
+    };
+
+    expression& operator - (expression& exp, const binary_op<sub> &v) {
+        exp = boost::get<double>(v.left)
+            - boost::get<double>(v.right);
+        return exp;
+    }
+
+    std::ostream& operator << (std::ostream& os, const binary_op<add> &val) {
+        qDebug() << "adder";
+
+        double res = boost::get<double>(val.left)
+                   + boost::get<double>(val.right);
+
+        os << val.left  << std::endl;
+        os << val.right << std::endl;
+        os << "A------" << std::endl;
+        os << res       << std::endl;
+
+        return os;
+    }
+    std::ostream& operator<< (std::ostream& os, const binary_op<sub> &val) {
+        qDebug() << "subser";
+        return os;
+    }
+    std::ostream& operator<< (std::ostream& os, const binary_op<mul> &val) {
+        qDebug() << "muller";
+        return os;
+    }
+    std::ostream& operator<< (std::ostream& os, const binary_op<div> &val) {
+        qDebug() << "diver";
+        return os;
+    }
+
+
+    void test()
+    {
+        expression res1 = binary_op<mul>(2.0 ,4.0);
+        expression res2 = binary_op<sub>(res1,3.0);
+        expression result = ( res2 );
+
+        std::cout << boost::apply_visitor(calculator(),result) << std::endl;
+
+    }
+
+#if 0
+    class expression_ast
+    {
+    public:
+        typedef
+        boost::variant<
+              nil
+            , int
+            , double
+            , boost::recursive_wrapper<expression_ast>
+            , boost::recursive_wrapper<binary_op>
+        >
+        type_expr;
+        type_expr expr;
+
+        expression_ast()  {}
+
+        expression_ast & operator += (int rhs);
+        //expression_ast & operator -= (expression_ast * rhs);
+        //expression_ast & operator *= (expression_ast * rhs);
+        //expression_ast & operator /= (expression_ast * rhs);
+    };
+
+    expression_ast expr_ast;
+
+    std::ostream& operator<< (std::ostream& os, const expression_ast &ast)
+    {
+        qDebug() << "blaxter: ";
+        os << ast.expr;
+        return os;
+    }
+
+    std::ostream& operator<< (std::ostream& os, const nil &sn)
+    {
+        qDebug() << "nullscher";
+        return os;
+    }
+
+    struct binary_op
+    {
+        binary_op(
+              char op
+            , expression_ast & left
+            , expression_ast & right)
+            : op(op)
+            , left(left)
+            , right(right)
+        {
+            std::cout << "Math2: " << std::endl;
+        }
+
+        //binary_op(char op, expression_ast::type_expr &left, expression_ast *right)
+        binary_op(char op, expression_ast::type_expr &left, int right)
+        {
+            qDebug() << "lefter";
+            expr_ast.expr = right;
+        }
+
+        binary_op & operator << (binary_op bop) {
+            left  = bop.left;
+            right = bop.right;
+            return *this;
+        }
+
+        char op;
+        expression_ast left;
+        expression_ast right;
+    };
+
+    expression_ast& expression_ast::operator += (int rhs) {
+        qDebug() << "inter: " << rhs;
+        expr = binary_op('+', expr, rhs);
+        return *this;
+    }
+
+    /*
+    expression_ast& expression_ast::operator -= (expression_ast * rhs) {
+        expr = binary_op('-', expr, rhs);
+        return *this;
+    }
+
+    expression_ast& expression_ast::operator *= (expression_ast * rhs) {
+        expr = binary_op('*', expr, rhs);
+        return *this;
+    }
+
+    expression_ast& expression_ast::operator /= (expression_ast * rhs) {
+        expr = binary_op('/', expr, rhs);
+        return *this;
+    }*/
+
+    QDebug & operator << (QDebug dbg, const expression_ast ast) {
+        dbg << "hallo";
+        return dbg;
+    }
+
+    std::ostream& operator<< (std::ostream& os, const binary_op &bipo)
+    {
+        qDebug() << "bipo";
+        //qDebug() << boost::get<double>(bipo);
+
+        os << bipo.left;
+        os << bipo.right;
+
+        return os;
+    }
+
+
+    // -------------------------------
+    // print/handle our AST - exec ...
+    // -------------------------------
+    struct ast_print {
+        typedef void result_type;
+
+        void operator()(nil const & dv) const
+        {
+            qDebug() << "NILer";
+        }
+        void operator()(int const & dv) const
+        {
+            std::cout << "int: " << dv << std::endl;
+        }
+        void operator()(double const & dv) const
+        {
+            std::cout << "dbl: " << dv << std::endl;
+        }
+
+        void operator()(expression_ast const& ast) const
+        {
+            qDebug() << "aster";
+
+            qDebug() << typeid(ast.expr).name();
+
+            if (expr_ast.expr.type() == typeid(binary_op)) {
+                std::cout << boost::get<binary_op>(ast.expr) << std::endl;
+            }
+
+            qDebug() << "-------";
+
+            //binary_op *bop = boost::get<binary_op>;
+
+            //if (!(ast.expr.type().name() == std::string("N11dBaseParser3nilE")))
+            boost::apply_visitor(*this, ast.expr);
+        }
+
+        void operator()(binary_op const& expr) const
+        {
+            std::cout << "op:" << expr.op << "(";
+            boost::apply_visitor(*this, expr.left.expr);
+            std::cout << ", ";
+            boost::apply_visitor(*this, expr.right.expr);
+            std::cout << ')';
+        }
+    };
 
     // ------------------------------------
     // cut spaces, and return next char ...
@@ -311,10 +640,24 @@ namespace kallup {
             eval_ast->op  = '+';
         }
     };
+
+    void test() {
+        expression_ast ast; // = new expression_ast;
+        ast += int(4);
+        expr_ast = ast;
+        qDebug() << "ok";
+
+        ast_print printer;
+        printer(expr_ast);
+    }
+#endif
 }
 
 bool parseText(QString src)
 {
+    kallup::test();
+    return true;
+/*
     try {
         using namespace kallup;
         Parser<dBase> p;
@@ -328,6 +671,6 @@ bool parseText(QString src)
         QString("Error in line: %1\n%2")
         .arg(line_no)
         .arg(e));
-    }
+    }*/
     return false;
 }
