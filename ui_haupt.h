@@ -57,11 +57,13 @@ public:
             Form->setObjectName(QStringLiteral("Form"));
         Form->resize(598, 450);
         verticalLayout_6 = new QVBoxLayout(Form);
+        verticalLayout_6->setSpacing(0);
         verticalLayout_6->setObjectName(QStringLiteral("verticalLayout_6"));
         verticalLayout_6->setContentsMargins(0, 0, 0, 0);
         verticalLayout_4 = new QVBoxLayout();
         verticalLayout_4->setSpacing(0);
         verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
+        verticalLayout_4->setSizeConstraint(QLayout::SetFixedSize);
         widget_6 = new QWidget(Form);
         widget_6->setObjectName(QStringLiteral("widget_6"));
         widget_6->setMinimumSize(QSize(0, 32));
@@ -70,7 +72,7 @@ public:
         verticalLayout_4->addWidget(widget_6);
 
         horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setSpacing(2);
+        horizontalLayout_3->setSpacing(0);
         horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
         widget_4 = new QWidget(Form);
         widget_4->setObjectName(QStringLiteral("widget_4"));
@@ -100,11 +102,14 @@ public:
         listView_3->setSizePolicy(sizePolicy);
         listView_3->setMinimumSize(QSize(150, 0));
         listView_3->setMaximumSize(QSize(150, 16777215));
+        listView_3->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
         horizontalLayout_3->addWidget(listView_3);
 
         verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setSpacing(2);
         verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
+        verticalLayout_5->setSizeConstraint(QLayout::SetFixedSize);
         editorGutter = new MyEditor(Form);
         editorGutter->setObjectName(QStringLiteral("editorGutter"));
 
