@@ -1,10 +1,7 @@
 ﻿#include <stdio.h>
 
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <vector>
-using namespace std;
 
 #define  BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
 
@@ -45,101 +42,196 @@ namespace kallup
     char * m_TextBuffer;    // the source code buffer
     double value = 0.00;    // math
 
-    class mystream {
-    public:
-        mystream() {
-            m_filePtr = nullptr;
-        }
-        mystream(char* fileName, int mode) {
-            try {
-                m_filePtr = nullptr;
-                open(fileName,mode);
-            } catch (...) {
-                std::cout << "can not open mem file.\n";
-            }
-        }
-        ~mystream() {
-            close();
-        }
-        void open(char* fileName, int mode) {
-            if (m_filePtr != nullptr)
-            fclose(m_filePtr);
+    struct add_ { };
+    struct sub_ { };
+    struct mul_ { };
+    struct div_ { };
 
-            switch (mode)
-            {
-            case 0:
-                m_filePtr = fopen(fileName, "wb");
-                break;
-            case 1:
-                m_filePtr = fopen(fileName, "rb");
-                break;
-            }
-        }
+    struct expr   { };
+    struct sconst { };
+    struct mconst { };
 
-        void close() {
-            if (!m_filePtr)
-            fclose(m_filePtr);
-        }
+    template <typename OpTag1> struct binary_op;
 
-        void read(void *data, unsigned long size) {
-            if (m_filePtr) {
-                fread(data,1,size,m_filePtr);
-            }
-        }
-
-        void write(const void *data, unsigned long size) {
-            if (m_filePtr) {
-                fwrite(data,1,size,m_filePtr);
-            }
-        }
-
-    private:
-        FILE *m_filePtr;
-    };
-
-    template <class T>
-    inline mystream & operator << (mystream & s, T val) {
-        s.write(&val,sizeof(T));
-        return s;
-    }
-
-    template <class T>
-    inline mystream & operator >> (mystream & s, T val) {
-        s.read(&val,sizeof(T));
-        return s;
-    }
-
-    template<class T>
-    inline mystream & operator<<(mystream & s, const vector<T>& _arr)
-    {
-        s << (long)_arr.size();
-        if (_arr.size() > 0) s.write(&_arr.front(), (unsigned long)sizeof(T)*_arr.size());
-        return s;
-    }
-
-    template<class T>
-    inline mystream & operator>>(mystream & s, vector<T>& _arr)
-    {
-        long size;
-        s >> size;
-        if (size > 0) {
-            _arr.resize(size);
-            s.read(&_arr.front(), (unsigned long)sizeof(T)*_arr.size());
-        }
-        return s;
-    }
-
-    class expression { public:
-          expression() { }
+    class expression_wrapper { public:
+          expression_wrapper() { }
 
         typedef boost::variant<
           double
         , std::string
-        >
-        expression_type;
-        expression_type expr;
 
+        , boost::recursive_wrapper< binary_op<add_> >
+        , boost::recursive_wrapper< binary_op<sub_> >
+        , boost::recursive_wrapper< binary_op<mul_> >
+        , boost::recursive_wrapper< binary_op<div_> >
+
+        > expression;
+
+
+        expression_wrapper::expression operator = (TypeDouble<int> const &val) {
+            std::cout << "assiggnn" << std::endl;
+        }
     };
+
+    template <typename OpTag1>
+    struct binary_op
+    {
+        expression_wrapper::expression * left ;
+        expression_wrapper::expression * right;
+
+        binary_op() { }
+        binary_op(double val1, double val2) {
+            double res = val1 * val2;
+            value = res;
+        }
+
+        binary_op(expression_wrapper::expression &exp, double val) {
+            auto *left  = new expression_wrapper::expression;
+            auto *right = new expression_wrapper::expression;
+
+            left  = value;
+            right = val;
+
+            std::cout << "L:   " << left  << std::endl;
+            std::cout << "R:   " << right << std::endl;
+            std::cout << "val: " << val << std::endl;
+            exp = val;
+        }
+        binary_op(double val, expression_wrapper::expression &exp) {
+            auto *left  = new expression_wrapper::expression;
+            auto *right = new expression_wrapper::expression;
+
+            //left  = val;
+            //right = value;
+
+            std::cout << "L2:   " << left  << std::endl;
+            std::cout << "R2:   " << right << std::endl;
+            std::cout << "val2: " << val << std::endl;
+            //value = boost::get<double>(left);
+            exp   = value;
+        }
+
+        void get(binary_op<mul_> &obj) {
+            auto *left  = new expression_wrapper::expression;
+            auto *right = new expression_wrapper::expression;
+
+            std::cout << "pp: " << std::endl;
+            left  = obj.left;
+            right = obj.right;
+        }
+
+        binary_op(expression_wrapper::expression &lhs) {
+            auto *left  = new expression_wrapper::expression;
+            auto *right = new expression_wrapper::expression;
+
+            left = lhs;
+            std::cout << "popser: " << /*boost::get<double>(left) <<*/ std::endl;
+        }
+
+        binary_op(expression_wrapper::expression *&obj) {
+
+        }
+
+        binary_op(
+              expression_wrapper::expression & lhs,
+              expression_wrapper::expression & rhs)
+            : left(lhs), right(rhs)
+        {
+        }
+
+        binary_op(binary_op<mul_> *mul, double val)
+        {
+            auto *left  = new expression_wrapper::expression;
+            auto *right = new expression_wrapper::expression;
+
+            std::cout << "mexter" << std::endl;
+            left  = mul;
+            right = val;
+        }
+
+        binary_op(const binary_op<sub_> &bo)   {
+            std::cout << "subser: " << bo.left ->type().name() << std::endl;
+            std::cout << "subser: " << bo.right->type().name() << std::endl;
+
+            double res2 = 1.2; //boost::get<double>(bo.right);
+            {
+                //auto *left  = new expression_wrapper::expression;
+                //auto *right = new expression_wrapper::expression;
+
+                value = value - res2;
+                //left  = value ;
+                std::cout << "ein lefter: " << value << std::endl;
+            }
+        }
+        binary_op(const binary_op<add_> &bo)   {
+
+        }
+        binary_op(const binary_op<mul_> &bo)   {
+            std::cout << "mopser" << std::endl;
+            //auto *left  = new expression_wrapper::expression;
+            //auto *right = new expression_wrapper::expression;
+
+            double l = 1; //boost::get<double>(bo.left );
+            double r = 2; //boost::get<double>(bo.right);
+            double s = r * l;
+
+            //left = value = s;
+
+            std::cout <<  "multerL " << l << std::endl;
+            std::cout <<  "multerR " << r << std::endl;
+            std::cout <<  "multerS " << s << std::endl;
+        }
+        binary_op(const binary_op<div_> &bo)   {
+        }
+    };
+
+    expression_wrapper::expression operator + (
+        expression_wrapper::expression &exp1,
+        expression_wrapper::expression &exp2)
+    {
+        std::cout << "plus" << std::endl;
+
+        return exp1;
+    }
+    expression_wrapper::expression& operator += (expression_wrapper::expression &exp, double val) {
+        expression_wrapper::expression tmp = val;
+        exp = exp + tmp;
+        return exp;
+    }
+
+    expression_wrapper::expression& operator - (expression_wrapper::expression& exp,
+                            const binary_op<sub_> &v) {
+        std::cout << "minus" << std::endl;
+        exp = boost::get<boost::recursive_wrapper<double>>(v.left)
+            - boost::get<boost::recursive_wrapper<double>>(v.right);
+        return exp;
+    }
+    expression_wrapper::expression& operator +=
+       (expression_wrapper::expression &exp1,
+        expression_wrapper::expression &exp2) {
+        exp1 = exp2;
+        return exp1;
+    }
+    expression_wrapper::expression& operator += (
+        expression_wrapper::expression &exp,
+        cmd_varset<TypeDouble<int> > &v) {
+        std::cout << "molobster1" << std::endl;
+        cmd_varset<TypeDouble<int> > tdp = v;
+        TypeDouble<int> td = tdp.value; //.value.value = v.value.value;
+        td.value = tdp.value.value;
+        double r = td.value;
+        std::cout << "molobster2" << std::endl;
+        std::cout << r  << std::endl;
+        value = r;
+        exp  += r;
+        return  exp;
+    }
+
+    expression_wrapper::expression& operator += (
+    expression_wrapper::expression& exp, const cmd_print<TypeDoublePrint<int> > &v) {
+        exp += v.getVal().value;
+        return exp;
+    }
 
 
     class ast_struct: public boost::static_visitor<double> {
@@ -148,13 +240,70 @@ namespace kallup
             std::cout << txt << std::endl;
             return 123.42;
         }
+        double operator()(const binary_op<add_> &obj) {
+
+        }
         double operator()(double val) const {
             std::cout << "getter value01: " << val << std::endl;
             value = val;
             //return boost::apply_visitor( ast_struct(), tdp.expr );
             return  value;
         }
+
+        double operator()(binary_op<add_> & binary) {
+            //return boost::apply_visitor( ast_struct(), binary.left )
+            //     + boost::apply_visitor( ast_struct(), binary.right);
+        }
+        double operator()(const binary_op<sub_> & binary) const     {
+            std::cout << "double subserle" << std::endl;
+            std::cout << boost::get<boost::recursive_wrapper<double>>(binary.left)  << std::endl;
+            std::cout << boost::get<boost::recursive_wrapper<double>>(binary.right) << std::endl;
+
+            return 2.2; //boost::apply_visitor( ast_struct(), binary.left );
+               //- boost::apply_visitor( ast_struct(), binary.right );
+        }
+        /*
+        double operator()(binary_op<mul_> &d0) {
+            std::cout << "double:" << std::endl;
+
+            expression_wrapper::expression d1; d1 = binary_op<mul_>(d0.left );
+            expression_wrapper::expression d2; d2 = binary_op<mul_>(d0.right);
+
+            expression_wrapper::expression d4; d4 = d1;
+
+            return boost::apply_visitor( ast_struct(), d1)
+                 * boost::apply_visitor( ast_struct(), d2);
+        }*/
+        /*
+        double operator()(binary_op<div_> & binary) {
+            //boost::recursive_wrapper<binary_op<div_>> tmp1; tmp1 = binary;
+            //auto d2 = binary_op<div_>(tmp1);
+
+            expression_wrapper::expression d1; d1 = binary_op<div_>(binary.left);
+            expression_wrapper::expression d2; d2 = binary_op<div_>(binary.right);
+
+            return boost::apply_visitor( ast_struct(), d1)
+                 / boost::apply_visitor( ast_struct(), d2);
+        }*/
     };
+
+
+    std::ostream& operator << (std::ostream& os, const binary_op<add_> &val) {
+        os << "adder" << std::endl;
+        return os;
+    }
+    std::ostream& operator<< (std::ostream& os, const binary_op<sub_> &val) {
+        std::cout << "subser" << std::endl;
+        return os;
+    }
+    std::ostream& operator<< (std::ostream& os, binary_op<mul_> val_) {
+        os << "muller" << std::endl;
+        return os;
+    }
+    std::ostream& operator<< (std::ostream& os, const binary_op<div_> &val) {
+        os << "diver" << std::endl;
+        return os;
+    }
 
     // ----------------------------------
     // inline's, to reduce code size, and
@@ -482,8 +631,6 @@ namespace kallup
             if (m_pos < strlen(m_TextBuffer))
             throw QString("not all input are proceed.");
         }
-    private:
-        expression::expression_type expr;
     };
 
     template   <typename T>
@@ -499,39 +646,28 @@ namespace kallup
         }
     };
 
-    void test(QString src)
+    void test()
     {
-#if 0
-        expression::expression_type res1 = 2.0 + 5.0;
-        expression::expression_type res2 = 21.42;
+        expression_wrapper::expression res1 = binary_op<mul_>(2.0 ,5.0);
+        //expression_wrapper::expression res2 = binary_op<sub_>(3.0,res1);
+        expression_wrapper::expression result = ( res1 );
+
+        expression_wrapper::expression res3 = binary_op<add_>(21.13,0.00);
 
         std::cout << std::endl
                   << "start visitor..."
                   << std::endl;
-        std::cout << boost::apply_visitor(ast_struct(),res1) << std::endl; std::cout << "next...\n";
-        std::cout << boost::apply_visitor(ast_struct(),res2) << std::endl;
-#endif
+        std::cout << boost::apply_visitor(ast_struct(),res3  ) << std::endl; std::cout << "next...\n";
+        std::cout << boost::apply_visitor(ast_struct(),result) << std::endl;
+
     }
-
-
 }
 
 // int main() {
 bool parseText(QString src)
 {
     using namespace kallup;
-
-    // ------------------------------
-    // stream test - unser Brain ...
-    // ------------------------------
-    kallup::mystream s("test.dat",0);
-    vector<int> somevector(100,123);
-    somevector.at(20) = 35;
-    s << somevector;
-    s.close();
-
-
-    kallup::test(src);
+    kallup::test();
     return true;
     try {
         Parser<dBase> p;

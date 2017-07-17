@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui widgets
-CONFIG   += debug
+CONFIG   += debug c++14
 
 TARGET   = keyBase
 TEMPLATE = app
@@ -27,13 +27,13 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     form.h \
-    myitem.h editorgutter.h
+    myitem.h editorgutter.h \
+    typestruct.h \
+    expression.h \
+    ui_haupt.h
 
 FORMS    += mainwindow.ui \
-    form.ui
+    haupt.ui
 
 RESOURCES += \
     icons.qrc
-
-DISTFILES += \
-    sym
