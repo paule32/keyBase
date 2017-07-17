@@ -178,7 +178,7 @@ namespace kallup
     // ------------------------------------
     // cut spaces, and return next char ...
     // ------------------------------------
-    void SkipWhiteSpaces()
+    bool SkipWhiteSpaces()
     {
         int c = 0;
         while (1) {
@@ -229,10 +229,10 @@ namespace kallup
             break;
         }
         --m_pos;
-        return;
+        return true;
     }
 
-    QString GetIdent()
+    bool GetIdent()
     {
         SkipWhiteSpaces();
         ident.clear();
@@ -271,8 +271,8 @@ namespace kallup
         if (ident.length() < 1)
         throw QString("Syntax Error - No data?");
 
-        SkipWhiteSpaces();
-        return ident;
+        return SkipWhiteSpaces();
+      //return ident;
     }
 
     bool Match(char expected)
@@ -288,7 +288,7 @@ namespace kallup
         return false;
     }
 
-    QString GetNumber(void)
+    bool GetNumber(void)
     {
         SkipWhiteSpaces();
         number.clear();
@@ -338,7 +338,7 @@ namespace kallup
             }
         }
         SkipWhiteSpaces();
-        return number;
+        return true;
     }
 
     template <typename T>
@@ -384,8 +384,8 @@ namespace kallup
         }
         bool parse() {
             qDebug() << "parse space";
-            SkipWhiteSpaces();
-            return true;
+            return SkipWhiteSpaces();
+          //return true;
         }
         QVariant value;
         QString  name;
@@ -409,8 +409,8 @@ namespace kallup
         }
         bool parse() {
             qDebug() << "parse int";
-            qDebug() << GetNumber();
-            return true;
+            return GetNumber();
+          //return true;
         }
 
         QVariant value;
@@ -425,8 +425,8 @@ namespace kallup
         }
         bool parse() {
             qDebug() << "parse char";
-            qDebug() << GetIdent();
-            return true;
+            return GetIdent();
+          //return true;
         }
 
         QVariant value;
@@ -457,8 +457,10 @@ namespace kallup
     class grammar {
     public:
         grammar() { }
-        template <typename T> grammar & operator << (T &t) { t.parse();return *this; }
-        template <typename T> grammar & operator +  (T &t) { t.parse();return *this; }
+        template <typename T> grammar & operator << (T &t) { is_eof = t.parse();return *this; }
+        template <typename T> grammar & operator +  (T &t) { is_eof = t.parse();return *this; }
+
+        bool is_eof;
     };
 
     // -----------------------------------
@@ -473,8 +475,11 @@ namespace kallup
             ParserCommon pc(src);
             grammar go;
 
-            // grammar:
-            go +char_ << assign_ << int_;
+            // our grammar:
+            while (1) {
+                if (go.is_eof) break;
+                go +char_ << assign_ << int_;
+            }
 
             // ---------------------------------
             // sanity check, if all token read ?
@@ -521,6 +526,7 @@ bool parseText(QString src)
 {
     using namespace kallup;
 
+#if 0
     // ------------------------------
     // stream test - unser Brain ...
     // ------------------------------
@@ -530,9 +536,9 @@ bool parseText(QString src)
     s << somevector;
     s.close();
 
-
     kallup::test(src);
     return true;
+#endif
     try {
         Parser<dBase> p;
         p.start(src);
