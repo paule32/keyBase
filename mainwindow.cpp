@@ -13,8 +13,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-void MainWindow::resizeEvent(QResizeEvent* event)
-{
-    QMainWindow::resizeEvent(event);
-}

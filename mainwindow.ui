@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>KI Testumgebung (c) 2017 - de.sci.informatik.ki</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -73,6 +73,9 @@
     <bool>true</bool>
    </property>
    <widget class="QMenu" name="menuDatei">
+    <property name="tearOffEnabled">
+     <bool>false</bool>
+    </property>
     <property name="title">
      <string>Datei</string>
     </property>

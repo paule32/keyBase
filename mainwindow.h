@@ -17,9 +17,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     Ui::MainWindow *ui;
-
-protected:
-    void resizeEvent(QResizeEvent* event);
 };
 
 #endif // MAINWINDOW_H

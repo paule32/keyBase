@@ -75,6 +75,7 @@ public:
         menubar->setNativeMenuBar(true);
         menuDatei = new QMenu(menubar);
         menuDatei->setObjectName(QStringLiteral("menuDatei"));
+        menuDatei->setTearOffEnabled(false);
         MainWindow->setMenuBar(menubar);
 
         menubar->addAction(menuDatei->menuAction());
@@ -86,7 +87,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "KI Testumgebung (c) 2017 - de.sci.informatik.ki", Q_NULLPTR));
         menuDatei->setTitle(QApplication::translate("MainWindow", "Datei", Q_NULLPTR));
     } // retranslateUi
 
