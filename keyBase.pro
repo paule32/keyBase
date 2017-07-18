@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui widgets
-CONFIG   += debug c++14
+CONFIG   += debug c++11
 
 TARGET   = keyBase
 TEMPLATE = app
@@ -13,7 +13,6 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 
 QMAKE_CXXFLAGS += \
-    -std=c++14 \
     -pedantic \
     -Wno-sign-compare \
     -Wno-deprecated \
