@@ -99,6 +99,12 @@ namespace kallup
 {
     int line_no  = 1;
 
+    // -----------------------------
+    // minmal info of some flags ...
+    // -----------------------------
+    char cmd_load = 0;
+    char cmd_dara = 0;  // load data ""
+
     struct class_op;
     struct binary_op;
     struct unary_op;
@@ -310,11 +316,38 @@ namespace kallup
         template <typename, typename, typename>
         struct result { typedef void type; };
         void operator()() const {
-            QMessageBox::information(0,"Info","ein false");
+            QMessageBox::information(0,"Info","ein falser");
         }
     };
     phx::function<handle_true_struct > const handle_true  = handle_true_struct ();
     phx::function<handle_false_struct> const handle_false = handle_false_struct();
+
+    struct any_string_value_ {
+        typedef std::string result_type;
+        template <typename T>
+        std::string operator()(T const t) const {
+            std::string str(t);
+            std::cout << str << std::endl;
+            return str;
+        }
+    };
+    phx::function<any_string_value_> any_string_value;
+
+    // ---------------------------
+    // load local sqlite3 data ...
+    // ---------------------------
+    struct handle_load_struct {
+        typedef std::string result_type;
+        template <typename T>
+        std::string operator()(T const &t) const {
+            std::string *str = new std::string(t);
+            QMessageBox::information(0,"Info",
+            QString("eine datenbank: %1")
+            .arg(str->c_str()));
+            return str;
+        }
+    };
+    phx::function<handle_load_struct> const handle_load_data = handle_load_struct();
 
     struct error_handler_
     {
@@ -443,24 +476,52 @@ namespace kallup
                 ;
 
             factor =
-                qi::int_                [ _val = qi::_1 ]
+                  n_expr                        [ _val = qi::_1 ]
                 |  '('   >> expression          [ _val = qi::_1 ] >> ')'
                 |   ('-' >> factor              [ _val = neg(qi::_1)])
                 |   ('+' >> factor              [ _val = qi::_1 ] )
                 ;
 
-            qi::on_error<fail>(symsbols, error_handler(qi::_4, qi::_3, qi::_2));
+            n_expr =
+                  int_   [ _val = qi::_1 ]
+                | float_ [ _val = qi::_1 ]
+                ;
+
+            any_string %=
+                (
+                lexeme["'"  >> +(char_ - "'" ) >> "'" ][ _val = qi::_1, any_string_value(qi::_1) ] |
+                lexeme["\"" >> +(char_ - "\"") >> "\""][ _val = qi::_1, any_string_value(qi::_1) ] |
+                lexeme["["  >> +(char_ - "]" ) >> "]" ][ _val = qi::_1, any_string_value(qi::_1) ] )
+                ;
+
             symsbols
-                = symbol_true | symbol_false
+                = symbol_true
+                | symbol_false
+                | n_expr
+                | (symbol_load > symbol_data > any_string)
+
                 ;
 
             symbol_true  = ((lexeme[no_case["true" ]] | lexeme[no_case[".t."]]) [ handle_true () ] );
             symbol_false = ((lexeme[no_case["false"]] | lexeme[no_case[".f."]]) [ handle_false() ] );
+
+            symbol_load  =  (lexeme[no_case["load" ]]);
+            symbol_data  =  (lexeme[no_case["data" ]]);
+
+            qi::on_error<fail>(symsbols, error_handler(qi::_4, qi::_3, qi::_2));
         }
 
-        qi::rule<Iterator, Skipper> symsbols, symbol_false, symbol_true;
+        qi::rule<Iterator, Skipper>
+            symsbols, symbol_false, symbol_true,
+            symbol_load,
+            symbol_data;
+
+        qi::rule<Iterator, std::string(), Skipper>
+            any_string;
+
         qi::rule<Iterator, expression_ast()>
-            expression, term, factor;
+            expression, term, factor,
+            n_expr;
     };
 
     class mystream {
