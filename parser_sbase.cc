@@ -340,14 +340,14 @@ namespace kallup
         typedef std::string result_type;
         template <typename T>
         std::string operator()(T const &t) const {
-            std::string *str = new std::string(t);
+            std::string str(t);
             QMessageBox::information(0,"Info",
             QString("eine datenbank: %1")
-            .arg(str->c_str()));
+            .arg(str.c_str()));
             return str;
         }
     };
-    phx::function<handle_load_struct> const handle_load_data = handle_load_struct();
+    phx::function<handle_load_struct> handle_load_data;
 
     struct error_handler_
     {
@@ -499,7 +499,7 @@ namespace kallup
                 | symbol_false
                 | n_expr
                 | (symbol_load > symbol_data > any_string)
-
+                  [ _val=qi::_1, handle_load_data(qi::_1)]
                 ;
 
             symbol_true  = ((lexeme[no_case["true" ]] | lexeme[no_case[".t."]]) [ handle_true () ] );
