@@ -19,6 +19,7 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QListView>
 #include <QtWidgets/QListWidget>
+#include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QTabWidget>
@@ -53,6 +54,10 @@ public:
     MyEditor *editorGutter;
     QWidget *widget_9;
     QTabWidget *tabWidget_2;
+    QWidget *tab_4;
+    QVBoxLayout *verticalLayout_10;
+    QVBoxLayout *verticalLayout_3;
+    QPlainTextEdit *dataEdit;
     QWidget *tab_3;
     QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout_4;
@@ -61,7 +66,6 @@ public:
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout;
     QLCDNumber *lcdNumber_2;
-    QWidget *tab_4;
     QWidget *widget_7;
     QWidget *widget_8;
 
@@ -69,7 +73,7 @@ public:
     {
         if (Form->objectName().isEmpty())
             Form->setObjectName(QStringLiteral("Form"));
-        Form->resize(619, 549);
+        Form->resize(701, 658);
         Form->setStyleSheet(QStringLiteral("background-color: rgb(215, 230, 247);"));
         verticalLayout_6 = new QVBoxLayout(Form);
         verticalLayout_6->setSpacing(0);
@@ -213,6 +217,28 @@ public:
         font.setWeight(75);
         tabWidget_2->setFont(font);
         tabWidget_2->setStyleSheet(QStringLiteral("background-color: rgb(114, 159, 207);"));
+        tab_4 = new QWidget();
+        tab_4->setObjectName(QStringLiteral("tab_4"));
+        verticalLayout_10 = new QVBoxLayout(tab_4);
+        verticalLayout_10->setSpacing(3);
+        verticalLayout_10->setObjectName(QStringLiteral("verticalLayout_10"));
+        verticalLayout_10->setContentsMargins(3, 3, 3, 3);
+        verticalLayout_3 = new QVBoxLayout();
+        verticalLayout_3->setObjectName(QStringLiteral("verticalLayout_3"));
+        dataEdit = new QPlainTextEdit(tab_4);
+        dataEdit->setObjectName(QStringLiteral("dataEdit"));
+        dataEdit->setStyleSheet(QStringLiteral("background-color: rgb(243, 243, 243);"));
+        dataEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        dataEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        dataEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+        dataEdit->setBackgroundVisible(false);
+
+        verticalLayout_3->addWidget(dataEdit);
+
+
+        verticalLayout_10->addLayout(verticalLayout_3);
+
+        tabWidget_2->addTab(tab_4, QString());
         tab_3 = new QWidget();
         tab_3->setObjectName(QStringLiteral("tab_3"));
         sizePolicy1.setHeightForWidth(tab_3->sizePolicy().hasHeightForWidth());
@@ -270,9 +296,6 @@ public:
         verticalLayout_2->addLayout(verticalLayout);
 
         tabWidget_2->addTab(tab_3, QString());
-        tab_4 = new QWidget();
-        tab_4->setObjectName(QStringLiteral("tab_4"));
-        tabWidget_2->addTab(tab_4, QString());
 
         verticalLayout_5->addWidget(tabWidget_2);
 
@@ -325,6 +348,7 @@ public:
         label_4->setText(QApplication::translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Hilfe</span></p></body></html>", Q_NULLPTR));
         label_6->setText(QString());
         label_5->setText(QApplication::translate("Form", "<html><head/><body><p><span style=\" font-weight:600;\">Run App</span></p></body></html>", Q_NULLPTR));
+        tabWidget_2->setTabText(tabWidget_2->indexOf(tab_4), QApplication::translate("Form", "Data", Q_NULLPTR));
 
         const bool __sortingEnabled = logWindow->isSortingEnabled();
         logWindow->setSortingEnabled(false);
@@ -333,7 +357,6 @@ public:
         logWindow->setSortingEnabled(__sortingEnabled);
 
         tabWidget_2->setTabText(tabWidget_2->indexOf(tab_3), QApplication::translate("Form", "Logging", Q_NULLPTR));
-        tabWidget_2->setTabText(tabWidget_2->indexOf(tab_4), QApplication::translate("Form", "Tab 2", Q_NULLPTR));
     } // retranslateUi
 
 };

@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <QResizeEvent>
+
 #include "ui_mainwindow.h"
+#include "ui_haupt.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +19,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     Ui::MainWindow *ui;
+    Ui::Form       *formWindow;
 };
 
+extern MainWindow *mainWin;
 #endif // MAINWINDOW_H

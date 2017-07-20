@@ -13,8 +13,9 @@
 #include <typeinfo>
 #include <set>
 #include <utility>
-
 using namespace std;
+
+#include "mainwindow.h"
 
 #define  BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
 #define  BOOST_SPIRIT_USE_PHOENIX_V3
@@ -98,12 +99,15 @@ namespace boost { namespace spirit { namespace traits
 namespace kallup
 {
     int line_no  = 1;
+    int line_col = 1;
 
     // -----------------------------
     // minmal info of some flags ...
     // -----------------------------
     char cmd_load = 0;
     char cmd_dara = 0;  // load data ""
+
+    std::vector<std::string> stempList;
 
     struct class_op;
     struct binary_op;
@@ -296,11 +300,16 @@ namespace kallup
     };
 
     struct line_no_struct {
+        typedef std::string result_type;
         template <typename T>
-        void operator()(T const &t) const  {
+        void operator()(T const &t) const {
             char c = t;
             if (c == '\n' || c == '\r') {
                 ++line_no;
+                  line_col = 1;
+            }
+            else if (c == ' ') {
+                ++line_col;
             }
         }
     };
@@ -326,49 +335,174 @@ namespace kallup
         typedef std::string result_type;
         template <typename T>
         std::string operator()(T const t) const {
-            std::string str(t);
-            std::cout << str << std::endl;
-            return str;
+            auto s1 = std::string(t);
+            std::cout << s1 << std::endl;
+            return s1;
         }
     };
     phx::function<any_string_value_> any_string_value;
+
+    struct handle_line_col_add_struct {
+        typedef void result_type;
+        template <typename T>
+        void operator()(T const &t) const {
+            line_col += (int)(t);
+        }
+    };
+    phx::function<handle_line_col_add_struct> line_col_add;
 
     // ---------------------------
     // load local sqlite3 data ...
     // ---------------------------
     struct handle_load_struct {
-        typedef std::string result_type;
+        template <typename>
+        struct result { typedef void type; };
+
         template <typename T>
-        std::string operator()(T const &t) const {
-            std::string str(t);
+        void operator()(T const &t) const {
+            auto s1 = std::string(t);
             QMessageBox::information(0,"Info",
             QString("eine datenbank: %1")
-            .arg(str.c_str()));
-            return str;
+            .arg(s1.c_str()));
         }
     };
     phx::function<handle_load_struct> handle_load_data;
 
+    // ------------------------------------------------------
+    // define objects, or load them from database - facts ...
+    // ------------------------------------------------------
+    struct handle_define_struct {
+        typedef std::string result_type;
+        template <typename T>
+        std::string operator()(T const &t) const {
+            auto s1 = std::string(t);
+            QMessageBox::information(0,"Info",
+            QString("define: %1, noch keine Daten?")
+            .arg(s1.c_str()));
+            return s1;
+        }
+        template <typename T1, typename T2>
+        std::string operator()(T1 const &t1, T2 const &t2) const {
+            auto s1 = std::string(t1);
+            auto s2 = std::string(t2);
+            QMessageBox::information(0,"Info",
+            QString("define: %1, Daten in File: %2?")
+            .arg(s1.c_str())
+            .arg(s2.c_str()));
+            return s1;
+        }
+    };
+    phx::function<handle_define_struct> handle_object;
+
+    // --------------------------
+    // SET handler (language, ...
+    // --------------------------
+    struct handle_set_struct {
+        typedef std::string result_type;
+        template <typename T1,
+                  typename T2,
+                  typename T3>
+        std::string operator()(
+            T1 const &t1,
+            T2 const &t2,
+            T3 const &t3) const {
+            auto s1 = std::string(t1);
+            auto s2 = std::string(t2);
+            auto s3 = std::string(t3);
+
+            std::cout << s1 << std::endl;
+            std::cout << s2 << std::endl;
+            std::cout << s3 << std::endl;
+
+            QString qstr1; qstr1 = s1.c_str();
+            QString qstr2; qstr2 = s2.c_str();
+            QString qstr3; qstr3 = s3.c_str();
+
+            if (qstr1.toUpper() == QString("lang")    .toUpper()
+            ||  qstr1.toUpper() == QString("language").toUpper());
+            else
+            throw QStringError("token nicht erkannt");
+
+            // source lang
+            if (qstr2.toUpper() == QString("de").toUpper()) { } else
+            if (qstr2.toUpper() == QString("en").toUpper()) { } else
+            throw QStringError("token nicht erkannt");
+
+            // target lang
+            if (qstr3.toUpper() == QString("de").toUpper()) { } else
+            if (qstr3.toUpper() == QString("en").toUpper()) { } else
+            throw QStringError("token nicht erkannt");
+
+            if (qstr2.toUpper() == qstr3.toUpper())
+            throw QStringError("source == target\nnot allowed.");
+
+            // ----------------------
+            // set tmp. variables ...
+            // ----------------------
+            setSource(qstr2.toUpper());
+            setTarget(qstr3.toUpper());
+
+            return s1;
+        }
+
+        void setSource(QString &l) const { source = l; }
+        void setSource(QString  l) const { source = l; }
+
+        void setTarget(QString  l) const { target = l; }
+        void setTarget(QString &l) const { target = l; }
+
+        mutable QString source;
+        mutable QString target;
+    };
+    phx::function<handle_set_struct> handle_set;
+
+    // ------------------------------------
+    // translate, speak words or text's ...
+    // ------------------------------------
+    struct handle_trans_say_struct {
+        typedef std::string result_type;
+        template <typename T>
+        std::string operator()(T const &t) const {
+            auto s1 = std::string(t);
+            //auto *trans = MyTranslator(t);
+            std::cout << s1 << " <---\n";
+            mainWin->formWindow->dataEdit->document()->setPlainText(s1.c_str());
+            return s1;
+        }
+    };
+    phx::function<handle_trans_say_struct> handle_trans_say;
+
     struct error_handler_
     {
-         template <typename, typename, typename>
-         struct result { typedef void type; };
+        template <typename>
+        struct result { typedef void type; };
 
-         template <typename Iterator>
-         void operator()(
-              info const& what
-            , Iterator err_pos, Iterator last) const
-            {
+        template <typename T>
+        void operator()(T const &t) const {
+            auto s1 = std::string(t);
+            QString err_str = s1.c_str();
+            QStringList sl = err_str.split(':');
+
+            QString pos = QString("\n"
+                        "LineNo : %1\n"
+                        "ColumNo: %2").
+                    arg(line_no).
+                    arg(line_col);
+
+            if (sl.at(0) == QString("cmd")) {
+                if (sl.at(1) == QString("load")) err_str = QString("LOAD DATA \"datafile\""); else
+                if (sl.at(1) == QString("say" )) err_str = QString("SAY word"); else
+                if (sl.at(1) == QString("set" )) err_str = QString("SET LANG de en");
+
+            }
+
             std::stringstream ss;
-            ss  << "Error! Expecting "
-                 << what                         // what failed?
-                 << " here: \""
-                 << std::string(err_pos, last)   // iterators to error-pos, end
-                 << "\""
-                 << std::endl
+            ss  << "Error! Expecting: "      << std::endl
+                << err_str.toLatin1().data() << std::endl
+                << pos    .toLatin1().data()
+                << std::endl
             ;
-            std::cout << ss.str();
-            QMessageBox::information(0,"Parser", ss.str().c_str());
+            QMessageBox::information(0,"Parser-Error", ss.str().c_str());
         }
     };
     phx::function<error_handler_> const error_handler = error_handler_();
@@ -377,30 +511,6 @@ namespace kallup
     // custom skipper ...
     // for comments
     // ------------------------------------------------
-    struct error_handler_skip_
-    {
-         template <typename, typename, typename>
-         struct result { typedef void type; };
-
-         template <typename Iterator>
-         void operator()(
-             info const& what,
-             Iterator err_pos, Iterator last) const {
-             std::stringstream ss;
-             ss  << "Error! Expectingkkklkl "
-                 << what                         // what failed?
-                 << " here: \""
-                 << std::string(err_pos, last)   // iterators to error-pos, end
-                 << "\""
-                 << std::endl
-             ;
-             std::cout << ss.str();
-             QMessageBox::information(0,"Parser", ss.str().c_str());
-        }
-    };
-    boost::phoenix::function<  error_handler_skip_ >
-    const error_handler_skip = error_handler_skip_ ();
-
     template <typename Iterator>
     struct dbase_skipper : qi::grammar<Iterator>
     {
@@ -487,37 +597,81 @@ namespace kallup
                 | float_ [ _val = qi::_1 ]
                 ;
 
-            any_string %=
+            my_string %=
                 (
                 lexeme["'"  >> +(char_ - "'" ) >> "'" ][ _val = qi::_1, any_string_value(qi::_1) ] |
                 lexeme["\"" >> +(char_ - "\"") >> "\""][ _val = qi::_1, any_string_value(qi::_1) ] |
                 lexeme["["  >> +(char_ - "]" ) >> "]" ][ _val = qi::_1, any_string_value(qi::_1) ] )
                 ;
 
+            my_symbol %= +(char_ [ _val = qi::_1]) ;
+
             symsbols
                 = symbol_true
                 | symbol_false
                 | n_expr
-                | (symbol_load > symbol_data > any_string)
-                  [ _val=qi::_1, handle_load_data(qi::_1)]
+                | cmd_load
+                | cmd_set
+                | cmd_say
                 ;
 
-            symbol_true  = ((lexeme[no_case["true" ]] | lexeme[no_case[".t."]]) [ handle_true () ] );
-            symbol_false = ((lexeme[no_case["false"]] | lexeme[no_case[".f."]]) [ handle_false() ] );
+            cmd_load
+                = symbol_load
+                > symbol_data
+                > my_string
+                [ handle_load_data(qi::_2) ]
+                ;
 
-            symbol_load  =  (lexeme[no_case["load" ]]);
-            symbol_data  =  (lexeme[no_case["data" ]]);
+            cmd_set
+                = (symbol_set
+                > my_symbol
+                > my_symbol
+                > my_symbol)
+                [ handle_set(qi::_1,qi::_2,qi::_3) ]
+                ;
 
-            qi::on_error<fail>(symsbols, error_handler(qi::_4, qi::_3, qi::_2));
+            cmd_say
+                = (symbol_say > my_symbol)
+                [ handle_trans_say(qi::_1) ]
+                ;
+
+            symbol_true   = ((lexeme[no_case["true" ]])  )
+                            |(lexeme[no_case[".t."  ]])  ;
+            symbol_false  = ((lexeme[no_case["false"]])  )
+                            |(lexeme[no_case[".f."  ]])  ;
+
+            symbol_load   = (lexeme[no_case["load" ]]   );
+            symbol_data   = (lexeme[no_case["data" ]]   );
+
+            symbol_define = (lexeme[no_case["define"]]  );
+            symbol_set    = (lexeme[no_case["set"]]     );
+            symbol_say    = (lexeme[no_case["say"]]     );
+
+            // error's ...
+            qi::on_error<fail>(cmd_load, error_handler(std::string("cmd:load")));
+            qi::on_error<fail>(cmd_say , error_handler(std::string("cmd:say" )));
+            qi::on_error<fail>(cmd_set , error_handler(std::string("cmd:set" )));
         }
+
 
         qi::rule<Iterator, Skipper>
             symsbols, symbol_false, symbol_true,
+            symbol_define,
+            symbol_source, symbol_target,
             symbol_load,
             symbol_data;
 
+        qi::rule<Iterator, void(), Skipper>
+            cmd_load,
+            cmd_set,
+            cmd_say;
+
         qi::rule<Iterator, std::string(), Skipper>
-            any_string;
+
+            symbol_set,
+            symbol_say,
+            my_symbol,
+            my_string;
 
         qi::rule<Iterator, expression_ast()>
             expression, term, factor,
@@ -633,6 +787,11 @@ namespace kallup
             std::string data(text.toLatin1().data());
             if (data.size() < 1)
             throw new QStringError("No data for parser.");
+
+            // ----------------
+            // remove trash ...
+            // ----------------
+            stempList.clear();
 
             typedef std::string::const_iterator iterator_t;
 
