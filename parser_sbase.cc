@@ -13,6 +13,7 @@
 #include <typeinfo>
 #include <set>
 #include <utility>
+#include <iterator>
 using namespace std;
 
 #include "mainwindow.h"
@@ -22,7 +23,7 @@ using namespace std;
 #define  BOOST_SPIRIT_ACTIONS_ALLOW_ATTR_COMPAT
 
 #include <boost/config/warning_disable.hpp>
-
+#include <boost/regex/pending/unicode_iterator.hpp>
 #include <boost/spirit/include/lex_lexertl.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
@@ -36,7 +37,6 @@ using namespace std;
 #include <boost/spirit/include/karma.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/std_pair.hpp>
-#include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/object/construct.hpp>
 
 #include <boost/variant/recursive_variant.hpp>
@@ -48,6 +48,7 @@ using namespace std;
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <boost/range.hpp>
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
 #include <boost/phoenix.hpp>
@@ -108,6 +109,10 @@ namespace kallup
     char cmd_dara = 0;  // load data ""
 
     std::vector<std::string> stempList;
+
+    std::string stemp1;
+    std::string stemp2;
+    std::string stemp3;
 
     struct class_op;
     struct binary_op;
@@ -414,10 +419,8 @@ namespace kallup
             std::cout << s2 << std::endl;
             std::cout << s3 << std::endl;
 
-            QString qstr1; qstr1 = s1.c_str();
-            QString qstr2; qstr2 = s2.c_str();
-            QString qstr3; qstr3 = s3.c_str();
 
+#if 0
             if (qstr1.toUpper() == QString("lang")    .toUpper()
             ||  qstr1.toUpper() == QString("language").toUpper());
             else
@@ -441,7 +444,7 @@ namespace kallup
             // ----------------------
             setSource(qstr2.toUpper());
             setTarget(qstr3.toUpper());
-
+#endif
             return s1;
         }
 
@@ -460,14 +463,35 @@ namespace kallup
     // translate, speak words or text's ...
     // ------------------------------------
     struct handle_trans_say_struct {
-        typedef std::string result_type;
-        template <typename T>
-        std::string operator()(T const &t) const {
-            auto s1 = std::string(t);
+        typedef void result_type;
+        template <typename T1, typename T2>
+        void operator()(
+            T1 const &t1,
+            T2 const &t2) const {
+            auto s1 = std::string(t1);
+            auto i1 = int(t2);
             //auto *trans = MyTranslator(t);
-            std::cout << s1 << " <---\n";
-            mainWin->formWindow->dataEdit->document()->setPlainText(s1.c_str());
-            return s1;
+
+            if (i1 == 1) stemp1 = s1; else
+            if (i1 == 2) stemp2 = s1; else
+            if (i1 == 3) stemp3 = s1;
+
+            if (s1 == std::string("set@ok")) {
+                std::cout << "=> " << stemp1
+                          << ", "  << stemp2
+                          << ", "  << stemp3 << " <---"
+                          << std::endl;
+            }
+
+            if (i1 == 0) {
+                std::cout << "SAY: " << s1 << std::endl;
+            }
+
+            QString dataText = QString::fromStdString(s1);
+            mainWin->formWindow
+                    ->dataEdit
+                    ->document()
+                    ->setPlainText(dataText);
         }
     };
     phx::function<handle_trans_say_struct> handle_trans_say;
@@ -494,6 +518,10 @@ namespace kallup
                 if (sl.at(1) == QString("say" )) err_str = QString("SAY word"); else
                 if (sl.at(1) == QString("set" )) err_str = QString("SET LANG de en");
 
+            }
+
+            else {
+                std::cout << s1 << std::endl;
             }
 
             std::stringstream ss;
@@ -527,7 +555,7 @@ namespace kallup
             using qi::fail;
 
             my_skip =
-                (space [ line_func(qi::_1) ] )
+                (lexeme[char_("\t\n\r")] [ line_func(qi::_1) ] )
                 |
                 (lexeme["**"]) >> *((char_) - eol) >> (eol | eoi ) |
                 (lexeme["&&"]) >> *((char_) - eol) >> (eol | eoi ) |
@@ -557,12 +585,13 @@ namespace kallup
         dbase_grammar() :
         dbase_grammar::base_type(start)
         {
-            using boost::spirit::qi::no_case;
-            using boost::spirit::qi::_val;
+            using boost::spirit::standard_wide::no_case;
+            using boost::spirit::standard_wide::char_;
+            using boost::spirit::standard_wide::string;
 
-            using qi::lit;
-            using qi::char_;
-            using qi::lexeme;
+            using boost::spirit::qi::lexeme;
+            using boost::spirit::qi::lit;
+            using boost::spirit::qi::_val;
 
             using qi::on_error;
             using qi::fail;
@@ -604,7 +633,15 @@ namespace kallup
                 lexeme["["  >> +(char_ - "]" ) >> "]" ][ _val = qi::_1, any_string_value(qi::_1) ] )
                 ;
 
-            my_symbol %= +(char_ [ _val = qi::_1]) ;
+            my_symbol
+                = qi::as_string [
+                    +qi::alnum |
+                    *lexeme[char_("\u00f6\u00d6"
+                                  "\u00dc\u00fc"
+                                  "\u00c4\u00e4"
+                                  "\u00df")]]
+                [ _val = qi::_1 ]
+                ;
 
             symsbols
                 = symbol_true
@@ -616,23 +653,24 @@ namespace kallup
                 ;
 
             cmd_load
-                = symbol_load
-                > symbol_data
+                = symbol_load > +(qi::ascii::space)
+                > symbol_data > +(qi::ascii::space)
                 > my_string
-                [ handle_load_data(qi::_2) ]
+                [ handle_load_data(qi::_1) ]
                 ;
 
             cmd_set
-                = (symbol_set
-                > my_symbol
-                > my_symbol
-                > my_symbol)
-                [ handle_set(qi::_1,qi::_2,qi::_3) ]
+                = (symbol_set > +(qi::ascii::space)
+                > (my_symbol [ handle_trans_say(qi::_1,1) ] ) >  +(qi::ascii::space)
+                > (my_symbol [ handle_trans_say(qi::_1,2) ] ) >  +(qi::ascii::space)
+                > (my_symbol [ handle_trans_say(qi::_1,3) ] ) >> *(qi::ascii::space)
+                [ handle_trans_say(std::string("set@ok"),4) ]
+                )
                 ;
 
             cmd_say
-                = (symbol_say > my_symbol)
-                [ handle_trans_say(qi::_1) ]
+                = (symbol_say >  +(qi::ascii::space)
+                > (my_symbol [ handle_trans_say(qi::_1,0) ] )  >> *(qi::ascii::space))
                 ;
 
             symbol_true   = ((lexeme[no_case["true" ]])  )
@@ -662,9 +700,9 @@ namespace kallup
             symbol_data;
 
         qi::rule<Iterator, void(), Skipper>
+            cmd_say,
             cmd_load,
-            cmd_set,
-            cmd_say;
+            cmd_set;
 
         qi::rule<Iterator, std::string(), Skipper>
 
@@ -784,23 +822,27 @@ namespace kallup
         }
         bool InitParseText(QString text)
         {
-            std::string data(text.toLatin1().data());
+            using namespace boost;
+            using namespace spirit::qi;
+            using namespace std;
+
+            std::string data = text.toStdString();
             if (data.size() < 1)
             throw new QStringError("No data for parser.");
+
+            auto str_std = std::string(data);
+            typedef std::string::const_iterator iterator_t;
+
+            iterator_t iter = str_std.begin();
+            iterator_t end  = str_std.end();
+
+            typedef dbase_skipper <iterator_t> skipper;
+            typedef dbase_grammar <iterator_t, skipper> grammar;
 
             // ----------------
             // remove trash ...
             // ----------------
             stempList.clear();
-
-            typedef std::string::const_iterator iterator_t;
-
-            iterator_t iter = data.begin();
-            iterator_t end  = data.end();
-
-            typedef dbase_skipper <iterator_t> skipper;
-            typedef dbase_grammar <iterator_t, skipper> grammar;
-
             grammar pg;
             return pparse(iter, end, pg);
         }
@@ -853,5 +895,10 @@ bool parseText(QString src)
         .arg(line_no)
         .arg(e->what));
     }
+    catch (...) {
+        QMessageBox::information(0,"Error",
+        "unknow error occur.");
+    }
+
     return false;
 }
