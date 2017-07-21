@@ -30,7 +30,7 @@ public:
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
-    Form *widget;
+    Form *formWindow;
     QMenuBar *menubar;
     QMenu *menuDatei;
 
@@ -60,10 +60,10 @@ public:
         verticalLayout->setSpacing(0);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
         verticalLayout->setSizeConstraint(QLayout::SetDefaultConstraint);
-        widget = new Form(centralwidget);
-        widget->setObjectName(QStringLiteral("widget"));
+        formWindow = new Form(centralwidget);
+        formWindow->setObjectName(QStringLiteral("formWindow"));
 
-        verticalLayout->addWidget(widget);
+        verticalLayout->addWidget(formWindow);
 
 
         horizontalLayout->addLayout(verticalLayout);

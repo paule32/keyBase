@@ -19,7 +19,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     Ui::MainWindow *ui;
-    Ui::Form       *formWindow;
 };
 
 extern MainWindow *mainWin;

@@ -8,8 +8,7 @@
 class MyTranslator: public QObject
 {
 public:
-     explicit MyTranslator();
-     explicit MyTranslator(QString);
+     explicit MyTranslator(QString&w);
     ~MyTranslator();
 
     void translate();
@@ -23,10 +22,9 @@ public:
     void setTarget(QString);
     void setWord(QString);
 
-    mutable QString source;
-    mutable QString target;
-
-    mutable QString word;
+    QString source;
+    QString target;
+    QString word;
 
     QProcess *proc;
 };

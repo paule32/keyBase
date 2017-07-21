@@ -456,6 +456,7 @@ namespace kallup
 
             if (i1 == 100) {
                 std::cout << "\nSAY: " << s1 << std::endl;
+                QString wd = s1.c_str();
 
                 QString qstemp1 = upCase(stemp1);
                 QString qstemp2 = upCase(stemp1);
@@ -481,7 +482,7 @@ namespace kallup
                 std::cout << source.toStdString() << std::endl;
                 std::cout << target.toStdString() << std::endl;
 
-                MyTranslator *trans = new MyTranslator(qstemp1);
+                MyTranslator *trans = new MyTranslator(wd);
                 trans->setSource(source);
                 trans->setTarget(target);
                 trans->translate();

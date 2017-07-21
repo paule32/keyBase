@@ -33,7 +33,8 @@ HEADERS  += mainwindow.h \
     expression.h \
     ui_haupt.h \
     testitem.h \
-    mytranslator.h
+    mytranslator.h \
+    ui_mainwindow.h
 
 FORMS    += mainwindow.ui \
     haupt.ui

@@ -6,11 +6,10 @@
 #include <string>
 using namespace std;
 
-MyTranslator::MyTranslator() { }
-MyTranslator::MyTranslator(QString word)
+MyTranslator::MyTranslator(QString &w)
 {
     proc = nullptr;
-    setWord(word);
+    word = w;
 
     if (source.length() < 1) setSource("DE");
     if (target.length() < 1) setTarget("EN");
@@ -29,8 +28,10 @@ void MyTranslator::setTarget(QString s) { source = s; }
 
 void MyTranslator::translate()
 {
-    QString str_command = "ls /";
-    mainWin->formWindow->dataEdit->clear();
+    std::cout << "--> " << word.toStdString() << std::endl;
+    QString str_command =
+    QString("./trans -b -s en -t de -play \"%1\"").arg(word);
+    mainWin->ui->formWindow->ui->dataEdit->clear();
 
     proc= new QProcess();
     proc->start("/bin/bash", QStringList() << "-c" << QString(str_command));
@@ -41,23 +42,14 @@ void MyTranslator::translate()
 
 void MyTranslator::rightMessage()
 {
-    std::cout << "outputer:\n";
-    QString out = mainWin->formWindow->dataEdit->document()->toPlainText();
     QByteArray strdata = proc->readAllStandardOutput();
-
-    std::cout << strdata.constData() << " ok\n";
-
-    mainWin->formWindow->dataEdit->document()->setPlainText(
-    QString("%1\n%2").arg(out).arg(strdata.constData()));
+    mainWin->ui->formWindow->ui->dataEdit->setPlainText(
+    QString("%1").arg(strdata.constData()));
 }
 
 void MyTranslator::wrongMessage()
 {
-    QString out = mainWin->formWindow->dataEdit->document()->toPlainText();
     QByteArray strdata = proc->readAllStandardError();
-
-    std::cout << strdata.constData() << " err";
-
-    mainWin->formWindow->dataEdit->document()->setPlainText(
-    QString("%1\n%2").arg(out).arg(strdata.constData()));
+    mainWin->ui->formWindow->ui->dataEdit->setPlainText(
+    QString("%1").arg(strdata.constData()));
 }
