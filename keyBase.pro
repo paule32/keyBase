@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     form.cpp \
     myitem.cpp editorgutter.cc \
     parser_sbase.cc \
-    testitem.cc
+    testitem.cc \
+    mytranslator.cpp
 
 HEADERS  += mainwindow.h \
     form.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
     typestruct.h \
     expression.h \
     ui_haupt.h \
-    testitem.h
+    testitem.h \
+    mytranslator.h
 
 FORMS    += mainwindow.ui \
     haupt.ui

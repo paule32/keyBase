@@ -230,7 +230,9 @@ public:
         dataEdit->setStyleSheet(QStringLiteral("background-color: rgb(243, 243, 243);"));
         dataEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
         dataEdit->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-        dataEdit->setTextInteractionFlags(Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse);
+        dataEdit->setTabChangesFocus(true);
+        dataEdit->setReadOnly(false);
+        dataEdit->setTextInteractionFlags(Qt::TextEditorInteraction);
         dataEdit->setBackgroundVisible(false);
 
         verticalLayout_3->addWidget(dataEdit);

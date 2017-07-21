@@ -5,6 +5,7 @@
 // touched by: Jens Kallup - 18.07.2017
 // -----------------------------------------------
 #include <stdio.h>
+#include <ctype.h>
 
 #include <iostream>
 #include <fstream>
@@ -17,6 +18,7 @@
 using namespace std;
 
 #include "mainwindow.h"
+#include "mytranslator.h"
 
 #define  BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
 #define  BOOST_SPIRIT_USE_PHOENIX_V3
@@ -113,6 +115,23 @@ namespace kallup
     std::string stemp1;
     std::string stemp2;
     std::string stemp3;
+
+    // ------------------
+    // tool functions ...
+    // ------------------
+    QString upCase(std::string &s) {
+        QString tmp;
+        char *str = new char[s.length()];
+        strcpy(str,s.c_str());
+        int  i = 0;
+        char c;
+        while ( str[i]) {
+            c = str[i];
+            tmp.append(toupper(c));
+            i++;  }
+        delete str;
+        return tmp;
+    }
 
     struct class_op;
     struct binary_op;
@@ -305,19 +324,30 @@ namespace kallup
     };
 
     struct line_no_struct {
-        typedef std::string result_type;
-        template <typename T>
-        void operator()(T const &t) const {
-            char c = t;
-            if (c == '\n' || c == '\r') {
+        typedef void result_type;
+        void operator()(const char t) const {
+            if (t == '\n' || t == '\r') {
                 ++line_no;
                   line_col = 1;
             }
-            else if (c == ' ') {
+            else if (t == ' ') {
+                ++line_col;
+            }
+        }
+        template <typename T>
+        void operator()(T const t) const {
+            auto c = std::string(t);
+            QString sc = c.c_str();
+            if (sc == '\n' || sc == '\r') {
+                ++line_no;
+                  line_col = 1;
+            }
+            else if (sc == ' ') {
                 ++line_col;
             }
         }
     };
+    phx::function<line_no_struct> line_func;
 
     struct handle_true_struct {
         template <typename, typename, typename>
@@ -399,78 +429,19 @@ namespace kallup
     };
     phx::function<handle_define_struct> handle_object;
 
-    // --------------------------
-    // SET handler (language, ...
-    // --------------------------
-    struct handle_set_struct {
-        typedef std::string result_type;
-        template <typename T1,
-                  typename T2,
-                  typename T3>
-        std::string operator()(
-            T1 const &t1,
-            T2 const &t2,
-            T3 const &t3) const {
-            auto s1 = std::string(t1);
-            auto s2 = std::string(t2);
-            auto s3 = std::string(t3);
-
-            std::cout << s1 << std::endl;
-            std::cout << s2 << std::endl;
-            std::cout << s3 << std::endl;
-
-
-#if 0
-            if (qstr1.toUpper() == QString("lang")    .toUpper()
-            ||  qstr1.toUpper() == QString("language").toUpper());
-            else
-            throw QStringError("token nicht erkannt");
-
-            // source lang
-            if (qstr2.toUpper() == QString("de").toUpper()) { } else
-            if (qstr2.toUpper() == QString("en").toUpper()) { } else
-            throw QStringError("token nicht erkannt");
-
-            // target lang
-            if (qstr3.toUpper() == QString("de").toUpper()) { } else
-            if (qstr3.toUpper() == QString("en").toUpper()) { } else
-            throw QStringError("token nicht erkannt");
-
-            if (qstr2.toUpper() == qstr3.toUpper())
-            throw QStringError("source == target\nnot allowed.");
-
-            // ----------------------
-            // set tmp. variables ...
-            // ----------------------
-            setSource(qstr2.toUpper());
-            setTarget(qstr3.toUpper());
-#endif
-            return s1;
-        }
-
-        void setSource(QString &l) const { source = l; }
-        void setSource(QString  l) const { source = l; }
-
-        void setTarget(QString  l) const { target = l; }
-        void setTarget(QString &l) const { target = l; }
-
-        mutable QString source;
-        mutable QString target;
-    };
-    phx::function<handle_set_struct> handle_set;
-
     // ------------------------------------
     // translate, speak words or text's ...
     // ------------------------------------
     struct handle_trans_say_struct {
         typedef void result_type;
+        void operator()(const char t, int l1) const {
+        }
         template <typename T1, typename T2>
         void operator()(
             T1 const &t1,
             T2 const &t2) const {
             auto s1 = std::string(t1);
             auto i1 = int(t2);
-            //auto *trans = MyTranslator(t);
 
             if (i1 == 1) stemp1 = s1; else
             if (i1 == 2) stemp2 = s1; else
@@ -483,16 +454,48 @@ namespace kallup
                           << std::endl;
             }
 
-            if (i1 == 0) {
-                std::cout << "SAY: " << s1 << std::endl;
-            }
+            if (i1 == 100) {
+                std::cout << "\nSAY: " << s1 << std::endl;
 
-            QString dataText = QString::fromStdString(s1);
-            mainWin->formWindow
-                    ->dataEdit
-                    ->document()
-                    ->setPlainText(dataText);
+                QString qstemp1 = upCase(stemp1);
+                QString qstemp2 = upCase(stemp1);
+                QString qstemp3 = upCase(stemp1);
+
+                if (qstemp1 == QString("LANG")
+                ||  qstemp1 == QString("LANGUAGE")) { }
+
+                // source lang
+                if (qstemp2 == QString("DE")) { } else
+                if (qstemp2 == QString("EN")) { }
+
+                // target lang
+                if (qstemp3 == QString("DE")) { } else
+                if (qstemp3 == QString("EN")) { }
+
+                // ----------------------
+                // set tmp. variables ...
+                // ----------------------
+                source = qstemp2;
+                target = qstemp3;
+
+                std::cout << source.toStdString() << std::endl;
+                std::cout << target.toStdString() << std::endl;
+
+                MyTranslator *trans = new MyTranslator(qstemp1);
+                trans->setSource(source);
+                trans->setTarget(target);
+                trans->translate();
+            }
         }
+
+        void setSource(QString &l) const { source = l; }
+        void setSource(QString  l) const { source = l; }
+
+        void setTarget(QString  l) const { target = l; }
+        void setTarget(QString &l) const { target = l; }
+
+        mutable QString source;
+        mutable QString target;
     };
     phx::function<handle_trans_say_struct> handle_trans_say;
 
@@ -555,8 +558,6 @@ namespace kallup
             using qi::fail;
 
             my_skip =
-                (lexeme[char_("\t\n\r")] [ line_func(qi::_1) ] )
-                |
                 (lexeme["**"]) >> *((char_) - eol) >> (eol | eoi ) |
                 (lexeme["&&"]) >> *((char_) - eol) >> (eol | eoi ) |
                 (lexeme["//"]) >> *((char_) - eol) >> (eol | eoi )
@@ -573,8 +574,6 @@ namespace kallup
         }
 
         dbase_skipper operator()(Iterator) { }
-
-        phx::function<line_no_struct> line_func;
         qi::rule<Iterator> my_skip;
     };
 
@@ -585,9 +584,10 @@ namespace kallup
         dbase_grammar() :
         dbase_grammar::base_type(start)
         {
-            using boost::spirit::standard_wide::no_case;
-            using boost::spirit::standard_wide::char_;
-            using boost::spirit::standard_wide::string;
+            using boost::spirit::qi::no_case;
+            using boost::spirit::ascii::char_;
+            using boost::spirit::ascii::string;
+            using boost::spirit::ascii::space;
 
             using boost::spirit::qi::lexeme;
             using boost::spirit::qi::lit;
@@ -597,7 +597,7 @@ namespace kallup
             using qi::fail;
 
             start
-                = +symsbols
+                = *((symsbols - (eol | eoi)) >> *char_(" \t\n\r"))
                 ;
 
             expression =
@@ -635,16 +635,12 @@ namespace kallup
 
             my_symbol
                 = qi::as_string [
-                    +qi::alnum |
-                    *lexeme[char_("\u00f6\u00d6"
-                                  "\u00dc\u00fc"
-                                  "\u00c4\u00e4"
-                                  "\u00df")]]
+                    +qi::alnum  ]
                 [ _val = qi::_1 ]
                 ;
 
             symsbols
-                = symbol_true
+                %= symbol_true
                 | symbol_false
                 | n_expr
                 | cmd_load
@@ -653,24 +649,23 @@ namespace kallup
                 ;
 
             cmd_load
-                = symbol_load > +(qi::ascii::space)
-                > symbol_data > +(qi::ascii::space)
-                > my_string
-                [ handle_load_data(qi::_1) ]
+                = (symbol_load > space
+                >   symbol_data > space
+                > (my_string  [ handle_load_data(qi::_1) ] ))
                 ;
 
             cmd_set
-                = (symbol_set > +(qi::ascii::space)
-                > (my_symbol [ handle_trans_say(qi::_1,1) ] ) >  +(qi::ascii::space)
-                > (my_symbol [ handle_trans_say(qi::_1,2) ] ) >  +(qi::ascii::space)
-                > (my_symbol [ handle_trans_say(qi::_1,3) ] ) >> *(qi::ascii::space)
-                [ handle_trans_say(std::string("set@ok"),4) ]
+                = (symbol_set  > space
+                > ((my_symbol  > space) [ handle_trans_say(qi::_1,1) ]  )
+                > ((my_symbol  > space) [ handle_trans_say(qi::_1,2) ]  )
+                > ( my_symbol           [ handle_trans_say(qi::_1,3) ,
+                                          handle_trans_say(std::string("set@ok"),4) ] )
                 )
                 ;
 
             cmd_say
-                = (symbol_say >  +(qi::ascii::space)
-                > (my_symbol [ handle_trans_say(qi::_1,0) ] )  >> *(qi::ascii::space))
+                = (symbol_say > space
+                > ((my_symbol [ handle_trans_say(qi::_1,100) ] )))
                 ;
 
             symbol_true   = ((lexeme[no_case["true" ]])  )
@@ -806,8 +801,8 @@ namespace kallup
     class dBase {
     public:
         dBase() {
-            std::cout << "handle dbase grammar..."
-                      << std::endl;
+            //std::cout << "handle dbase grammar..."
+            //          << std::endl;
         }
         template <typename Iterator, typename Skipper>
         bool pparse(Iterator &iter,
@@ -861,7 +856,7 @@ namespace kallup
     class Parser: public T {
     public:
         Parser() {
-            std::cout << "parser init." << std::endl;
+            //std::cout << "parser init." << std::endl;
             line_no = 1;
         }
     };
@@ -871,20 +866,6 @@ namespace kallup
 bool parseText(QString src)
 {
     using namespace kallup;
-
-#if 0
-    // ------------------------------
-    // stream test - unser Brain ...
-    // ------------------------------
-    kallup::mystream s("test.dat",0);
-    vector<int> somevector(100,123);
-    somevector.at(20) = 35;
-    s << somevector;
-    s.close();
-
-    kallup::test(src);
-    return true;
-#endif
     try {
         Parser<dBase> p;
         return p.start(src);
