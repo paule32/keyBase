@@ -2,6 +2,8 @@
 #include "mytranslator.h"
 #include "mainwindow.h"
 
+#include "haupt.h"
+
 #include <iostream>
 #include <string>
 using namespace std;

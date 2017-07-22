@@ -80,8 +80,35 @@
      <string>Datei</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuErkennung">
+    <property name="title">
+     <string>Erkennung</string>
+    </property>
+    <addaction name="actionObjekte_im_Bild"/>
+   </widget>
+   <widget class="QMenu" name="menuBearbeiten">
+    <property name="title">
+     <string>Bearbeiten</string>
+    </property>
+    <addaction name="actionLetzten_Schritt_R_ckg_ngig_machen"/>
+   </widget>
    <addaction name="menuDatei"/>
+   <addaction name="menuBearbeiten"/>
+   <addaction name="menuErkennung"/>
   </widget>
+  <action name="actionObjekte_im_Bild">
+   <property name="text">
+    <string>Objekte im Bild</string>
+   </property>
+   <property name="toolTip">
+    <string>Objekte im Bild erkennen ...</string>
+   </property>
+  </action>
+  <action name="actionLetzten_Schritt_R_ckg_ngig_machen">
+   <property name="text">
+    <string>Letzten Schritt Rückgängig machen</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

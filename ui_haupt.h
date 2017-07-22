@@ -17,7 +17,6 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QListView>
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QProgressBar>
@@ -49,8 +48,8 @@ public:
     QSpacerItem *verticalSpacer;
     QLabel *label_6;
     QLabel *label_5;
-    QListView *listView_3;
-    QVBoxLayout *verticalLayout_5;
+    QListWidget *listWidget_3;
+    QVBoxLayout *editLayout;
     MyEditor *editorGutter;
     QWidget *widget_9;
     QTabWidget *tabWidget_2;
@@ -177,32 +176,32 @@ public:
 
         horizontalLayout_3->addWidget(widget_4);
 
-        listView_3 = new QListView(Form);
-        listView_3->setObjectName(QStringLiteral("listView_3"));
-        sizePolicy.setHeightForWidth(listView_3->sizePolicy().hasHeightForWidth());
-        listView_3->setSizePolicy(sizePolicy);
-        listView_3->setMinimumSize(QSize(150, 0));
-        listView_3->setMaximumSize(QSize(150, 16777215));
-        listView_3->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-        listView_3->setIconSize(QSize(0, 0));
+        listWidget_3 = new QListWidget(Form);
+        listWidget_3->setObjectName(QStringLiteral("listWidget_3"));
+        sizePolicy.setHeightForWidth(listWidget_3->sizePolicy().hasHeightForWidth());
+        listWidget_3->setSizePolicy(sizePolicy);
+        listWidget_3->setMinimumSize(QSize(150, 0));
+        listWidget_3->setMaximumSize(QSize(150, 16777215));
+        listWidget_3->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        listWidget_3->setIconSize(QSize(0, 0));
 
-        horizontalLayout_3->addWidget(listView_3);
+        horizontalLayout_3->addWidget(listWidget_3);
 
-        verticalLayout_5 = new QVBoxLayout();
-        verticalLayout_5->setSpacing(2);
-        verticalLayout_5->setObjectName(QStringLiteral("verticalLayout_5"));
-        verticalLayout_5->setSizeConstraint(QLayout::SetFixedSize);
+        editLayout = new QVBoxLayout();
+        editLayout->setSpacing(2);
+        editLayout->setObjectName(QStringLiteral("editLayout"));
+        editLayout->setSizeConstraint(QLayout::SetFixedSize);
         editorGutter = new MyEditor(Form);
         editorGutter->setObjectName(QStringLiteral("editorGutter"));
 
-        verticalLayout_5->addWidget(editorGutter);
+        editLayout->addWidget(editorGutter);
 
         widget_9 = new QWidget(Form);
         widget_9->setObjectName(QStringLiteral("widget_9"));
         widget_9->setMinimumSize(QSize(0, 32));
         widget_9->setStyleSheet(QStringLiteral("background-color: rgb(186, 189, 182);"));
 
-        verticalLayout_5->addWidget(widget_9);
+        editLayout->addWidget(widget_9);
 
         tabWidget_2 = new QTabWidget(Form);
         tabWidget_2->setObjectName(QStringLiteral("tabWidget_2"));
@@ -299,10 +298,10 @@ public:
 
         tabWidget_2->addTab(tab_3, QString());
 
-        verticalLayout_5->addWidget(tabWidget_2);
+        editLayout->addWidget(tabWidget_2);
 
 
-        horizontalLayout_3->addLayout(verticalLayout_5);
+        horizontalLayout_3->addLayout(editLayout);
 
         widget_7 = new QWidget(Form);
         widget_7->setObjectName(QStringLiteral("widget_7"));

@@ -5,7 +5,6 @@
 #include <QResizeEvent>
 
 #include "ui_mainwindow.h"
-#include "ui_haupt.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,6 +18,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     Ui::MainWindow *ui;
+private slots:
+    void on_actionObjekte_im_Bild_triggered();
+    void on_actionLetzten_Schritt_R_ckg_ngig_machen_triggered();
 };
 
 extern MainWindow *mainWin;

@@ -233,7 +233,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="listView_3">
+        <widget class="QListWidget" name="listWidget_3">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -264,7 +264,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <layout class="QVBoxLayout" name="editLayout">
          <property name="spacing">
           <number>2</number>
          </property>

@@ -20,21 +20,21 @@ QMAKE_CXXFLAGS += \
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    form.cpp \
     myitem.cpp editorgutter.cc \
     parser_sbase.cc \
     testitem.cc \
-    mytranslator.cpp
+    mytranslator.cpp \
+    haupt.cpp
 
 HEADERS  += mainwindow.h \
-    form.h \
     myitem.h editorgutter.h \
     typestruct.h \
     expression.h \
     ui_haupt.h \
     testitem.h \
     mytranslator.h \
-    ui_mainwindow.h
+    ui_mainwindow.h \
+    haupt.h
 
 FORMS    += mainwindow.ui \
     haupt.ui

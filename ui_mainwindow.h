@@ -20,19 +20,23 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include "form.h"
+#include "haupt.h"
 
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
 public:
+    QAction *actionObjekte_im_Bild;
+    QAction *actionLetzten_Schritt_R_ckg_ngig_machen;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
     Form *formWindow;
     QMenuBar *menubar;
     QMenu *menuDatei;
+    QMenu *menuErkennung;
+    QMenu *menuBearbeiten;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -44,6 +48,10 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
+        actionObjekte_im_Bild = new QAction(MainWindow);
+        actionObjekte_im_Bild->setObjectName(QStringLiteral("actionObjekte_im_Bild"));
+        actionLetzten_Schritt_R_ckg_ngig_machen = new QAction(MainWindow);
+        actionLetzten_Schritt_R_ckg_ngig_machen->setObjectName(QStringLiteral("actionLetzten_Schritt_R_ckg_ngig_machen"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -76,9 +84,17 @@ public:
         menuDatei = new QMenu(menubar);
         menuDatei->setObjectName(QStringLiteral("menuDatei"));
         menuDatei->setTearOffEnabled(false);
+        menuErkennung = new QMenu(menubar);
+        menuErkennung->setObjectName(QStringLiteral("menuErkennung"));
+        menuBearbeiten = new QMenu(menubar);
+        menuBearbeiten->setObjectName(QStringLiteral("menuBearbeiten"));
         MainWindow->setMenuBar(menubar);
 
         menubar->addAction(menuDatei->menuAction());
+        menubar->addAction(menuBearbeiten->menuAction());
+        menubar->addAction(menuErkennung->menuAction());
+        menuErkennung->addAction(actionObjekte_im_Bild);
+        menuBearbeiten->addAction(actionLetzten_Schritt_R_ckg_ngig_machen);
 
         retranslateUi(MainWindow);
 
@@ -88,7 +104,14 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "KI Testumgebung (c) 2017 - de.sci.informatik.ki", Q_NULLPTR));
+        actionObjekte_im_Bild->setText(QApplication::translate("MainWindow", "Objekte im Bild", Q_NULLPTR));
+#ifndef QT_NO_TOOLTIP
+        actionObjekte_im_Bild->setToolTip(QApplication::translate("MainWindow", "Objekte im Bild erkennen ...", Q_NULLPTR));
+#endif // QT_NO_TOOLTIP
+        actionLetzten_Schritt_R_ckg_ngig_machen->setText(QApplication::translate("MainWindow", "Letzten Schritt R\303\274ckg\303\244ngig machen", Q_NULLPTR));
         menuDatei->setTitle(QApplication::translate("MainWindow", "Datei", Q_NULLPTR));
+        menuErkennung->setTitle(QApplication::translate("MainWindow", "Erkennung", Q_NULLPTR));
+        menuBearbeiten->setTitle(QApplication::translate("MainWindow", "Bearbeiten", Q_NULLPTR));
     } // retranslateUi
 
 };
