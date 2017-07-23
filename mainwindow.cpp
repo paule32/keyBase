@@ -72,3 +72,8 @@ void MainWindow::on_actionLetzten_Schritt_R_ckg_ngig_machen_triggered()
         mainWin->ui->formWindow->ui->editorGutter->show();
     }
 }
+
+void MainWindow::on_action_ber_Qt_triggered()
+{
+    QApplication::aboutQt();
+}

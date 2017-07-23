@@ -29,6 +29,7 @@ class Ui_MainWindow
 public:
     QAction *actionObjekte_im_Bild;
     QAction *actionLetzten_Schritt_R_ckg_ngig_machen;
+    QAction *action_ber_Qt;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
@@ -37,6 +38,7 @@ public:
     QMenu *menuDatei;
     QMenu *menuErkennung;
     QMenu *menuBearbeiten;
+    QMenu *menuHilfe;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -52,6 +54,8 @@ public:
         actionObjekte_im_Bild->setObjectName(QStringLiteral("actionObjekte_im_Bild"));
         actionLetzten_Schritt_R_ckg_ngig_machen = new QAction(MainWindow);
         actionLetzten_Schritt_R_ckg_ngig_machen->setObjectName(QStringLiteral("actionLetzten_Schritt_R_ckg_ngig_machen"));
+        action_ber_Qt = new QAction(MainWindow);
+        action_ber_Qt->setObjectName(QStringLiteral("action_ber_Qt"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -88,13 +92,17 @@ public:
         menuErkennung->setObjectName(QStringLiteral("menuErkennung"));
         menuBearbeiten = new QMenu(menubar);
         menuBearbeiten->setObjectName(QStringLiteral("menuBearbeiten"));
+        menuHilfe = new QMenu(menubar);
+        menuHilfe->setObjectName(QStringLiteral("menuHilfe"));
         MainWindow->setMenuBar(menubar);
 
         menubar->addAction(menuDatei->menuAction());
         menubar->addAction(menuBearbeiten->menuAction());
         menubar->addAction(menuErkennung->menuAction());
+        menubar->addAction(menuHilfe->menuAction());
         menuErkennung->addAction(actionObjekte_im_Bild);
         menuBearbeiten->addAction(actionLetzten_Schritt_R_ckg_ngig_machen);
+        menuHilfe->addAction(action_ber_Qt);
 
         retranslateUi(MainWindow);
 
@@ -109,9 +117,11 @@ public:
         actionObjekte_im_Bild->setToolTip(QApplication::translate("MainWindow", "Objekte im Bild erkennen ...", Q_NULLPTR));
 #endif // QT_NO_TOOLTIP
         actionLetzten_Schritt_R_ckg_ngig_machen->setText(QApplication::translate("MainWindow", "Letzten Schritt R\303\274ckg\303\244ngig machen", Q_NULLPTR));
+        action_ber_Qt->setText(QApplication::translate("MainWindow", "\303\234ber Qt ...", Q_NULLPTR));
         menuDatei->setTitle(QApplication::translate("MainWindow", "Datei", Q_NULLPTR));
         menuErkennung->setTitle(QApplication::translate("MainWindow", "Erkennung", Q_NULLPTR));
         menuBearbeiten->setTitle(QApplication::translate("MainWindow", "Bearbeiten", Q_NULLPTR));
+        menuHilfe->setTitle(QApplication::translate("MainWindow", "Hilfe", Q_NULLPTR));
     } // retranslateUi
 
 };

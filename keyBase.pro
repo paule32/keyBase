@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui widgets
-CONFIG   += debug c++11
+CONFIG   += debug c++14
 
 TARGET   = keyBase
 TEMPLATE = app
@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     parser_sbase.cc \
     testitem.cc \
     mytranslator.cpp \
-    haupt.cpp
+    haupt.cpp \
+    shapedetector.cpp
 
 HEADERS  += mainwindow.h \
     myitem.h editorgutter.h \
@@ -34,10 +35,16 @@ HEADERS  += mainwindow.h \
     testitem.h \
     mytranslator.h \
     ui_mainwindow.h \
-    haupt.h
+    haupt.h \
+    shapedetector.h
 
 FORMS    += mainwindow.ui \
     haupt.ui
 
 RESOURCES += \
     icons.qrc
+
+LIBS += -L/usr/local/lib -lopencv_core
+LIBS += -L/usr/local/lib -lopencv_highgui
+LIBS += -L/usr/local/lib -lopencv_imgproc
+LIBS += -L/usr/local/lib -lopencv_imgcodecs

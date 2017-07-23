@@ -6,8 +6,11 @@
 #include <QClipboard>
 
 #include "mainwindow.h"
+#include "shapedetector.h"
 #include "haupt.h"
 #include "ui_haupt.h"
+
+#include <opencv2/opencv.hpp>
 
 Form::Form(QWidget *parent) :
     QWidget(parent),
@@ -30,12 +33,16 @@ void Form::on_listWidget_3_doubleClicked(const QModelIndex &index)
     mainWin->ui->formWindow->ui->editorGutter->setEnabled(false);
     mainWin->ui->formWindow->ui->editorGutter->hide();
 
-    QPixmap pix(QString("./images/%1").arg(fname));
+    std::string pixfile = QString("./images/%1").arg(fname).toStdString();
+    QPixmap pix(pixfile.c_str());
     QLabel *img = new QLabel;
     ui->editLayout->addWidget(img);
     img->setObjectName("ocr_image");
     img->setPixmap(pix);
     img->show();
+
+    ShapeDetector *sd = new ShapeDetector;
+    sd->setup(pixfile);
 
     QClipboard *clip = QApplication::clipboard();
     clip->setText("ocr:image");
