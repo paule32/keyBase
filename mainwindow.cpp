@@ -8,6 +8,7 @@
 
 #include "mainwindow.h"
 #include "haupt.h"
+#include "dreidworld.h"
 
 #include "ui_mainwindow.h"
 
@@ -76,4 +77,10 @@ void MainWindow::on_actionLetzten_Schritt_R_ckg_ngig_machen_triggered()
 void MainWindow::on_action_ber_Qt_triggered()
 {
     QApplication::aboutQt();
+}
+
+void MainWindow::on_action3D_Welt_triggered()
+{
+    dreidworld * ddw = new dreidworld;
+    ddw->setup();
 }

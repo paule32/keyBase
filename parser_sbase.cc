@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------
+// -----------------------------------------------
 // KI - Testumgebung (c) 2017 de.sci.informatik.ki
 // All Rights Reserved.
 //
@@ -518,6 +518,7 @@ namespace kallup
                     arg(line_col);
 
             if (sl.at(0) == QString("cmd")) {
+                if (sl.at(1) == QString("if"  )) err_str = QString("IF cond stms ELSE stmts ENDIF");
                 if (sl.at(1) == QString("load")) err_str = QString("LOAD DATA \"datafile\""); else
                 if (sl.at(1) == QString("say" )) err_str = QString("SAY word"); else
                 if (sl.at(1) == QString("set" )) err_str = QString("SET LANG de en");
@@ -647,6 +648,7 @@ namespace kallup
                 | cmd_load
                 | cmd_set
                 | cmd_say
+                | cmd_ifcond
                 ;
 
             cmd_load
@@ -669,6 +671,10 @@ namespace kallup
                 > ((my_symbol [ handle_trans_say(qi::_1,100) ] )))
                 ;
 
+            /*cmd_ifconf
+                = (symbol_if >> space > symbol_cond > space >> symbol_else >> symbol_endif)
+                ;*/
+
             symbol_true   = ((lexeme[no_case["true" ]])  )
                             |(lexeme[no_case[".t."  ]])  ;
             symbol_false  = ((lexeme[no_case["false"]])  )
@@ -681,10 +687,18 @@ namespace kallup
             symbol_set    = (lexeme[no_case["set"]]     );
             symbol_say    = (lexeme[no_case["say"]]     );
 
+            symbol_if     = (lexeme[no_case["if"]]      );
+            symbol_else   = (lexeme[no_case["else"]]    );
+            symbol_endif  = (lexeme[no_case["endif"]]   );
+
             // error's ...
             qi::on_error<fail>(cmd_load, error_handler(std::string("cmd:load")));
             qi::on_error<fail>(cmd_say , error_handler(std::string("cmd:say" )));
             qi::on_error<fail>(cmd_set , error_handler(std::string("cmd:set" )));
+
+            qi::on_error<fail>(cmd_set , error_handler(std::string("cmd:if"    )));
+            qi::on_error<fail>(cmd_set , error_handler(std::string("cmd:else"  )));
+            qi::on_error<fail>(cmd_set , error_handler(std::string("cmd:endif" )));
         }
 
 
@@ -692,10 +706,12 @@ namespace kallup
             symsbols, symbol_false, symbol_true,
             symbol_define,
             symbol_source, symbol_target,
+            symbol_if, symbol_else, symbol_endif,
             symbol_load,
             symbol_data;
 
         qi::rule<Iterator, void(), Skipper>
+            cmd_ifcond,
             cmd_say,
             cmd_load,
             cmd_set;

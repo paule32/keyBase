@@ -36,7 +36,9 @@ void Form::on_listWidget_3_doubleClicked(const QModelIndex &index)
     std::string pixfile = QString("./images/%1").arg(fname).toStdString();
     QPixmap pix(pixfile.c_str());
     QLabel *img = new QLabel;
+
     ui->editLayout->addWidget(img);
+
     img->setObjectName("ocr_image");
     img->setPixmap(pix);
     img->show();

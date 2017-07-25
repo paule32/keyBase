@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/welcome.png</file>
+        <file>img/Actions-go-next-view-page-icon.png</file>
+        <file>img/Help-and-Support-icon.png</file>
+        <file>textures/diffuse.webp</file>
+        <file>textures/normal.webp</file>
+        <file>textures/specular.webp</file>
+    </qresource>
+</RCC>

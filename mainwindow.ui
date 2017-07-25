@@ -85,6 +85,7 @@
      <string>Erkennung</string>
     </property>
     <addaction name="actionObjekte_im_Bild"/>
+    <addaction name="action3D_Welt"/>
    </widget>
    <widget class="QMenu" name="menuBearbeiten">
     <property name="title">
@@ -119,6 +120,11 @@
   <action name="action_ber_Qt">
    <property name="text">
     <string>Über Qt ...</string>
+   </property>
+  </action>
+  <action name="action3D_Welt">
+   <property name="text">
+    <string>3D Welt</string>
    </property>
   </action>
  </widget>

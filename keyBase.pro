@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets 3dextras
 CONFIG   += debug c++14
 
 TARGET   = keyBase
@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     testitem.cc \
     mytranslator.cpp \
     haupt.cpp \
-    shapedetector.cpp
+    shapedetector.cpp \
+    dreidworld.cpp \
+    my3dplane.cpp
 
 HEADERS  += mainwindow.h \
     myitem.h editorgutter.h \
@@ -36,13 +38,15 @@ HEADERS  += mainwindow.h \
     mytranslator.h \
     ui_mainwindow.h \
     haupt.h \
-    shapedetector.h
+    shapedetector.h \
+    dreidworld.h \
+    my3dplane.h
 
 FORMS    += mainwindow.ui \
     haupt.ui
 
 RESOURCES += \
-    icons.qrc
+    images.qrc
 
 LIBS += -L/usr/local/lib -lopencv_core
 LIBS += -L/usr/local/lib -lopencv_highgui

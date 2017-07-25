@@ -30,6 +30,7 @@ public:
     QAction *actionObjekte_im_Bild;
     QAction *actionLetzten_Schritt_R_ckg_ngig_machen;
     QAction *action_ber_Qt;
+    QAction *action3D_Welt;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
@@ -56,6 +57,8 @@ public:
         actionLetzten_Schritt_R_ckg_ngig_machen->setObjectName(QStringLiteral("actionLetzten_Schritt_R_ckg_ngig_machen"));
         action_ber_Qt = new QAction(MainWindow);
         action_ber_Qt->setObjectName(QStringLiteral("action_ber_Qt"));
+        action3D_Welt = new QAction(MainWindow);
+        action3D_Welt->setObjectName(QStringLiteral("action3D_Welt"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -101,6 +104,7 @@ public:
         menubar->addAction(menuErkennung->menuAction());
         menubar->addAction(menuHilfe->menuAction());
         menuErkennung->addAction(actionObjekte_im_Bild);
+        menuErkennung->addAction(action3D_Welt);
         menuBearbeiten->addAction(actionLetzten_Schritt_R_ckg_ngig_machen);
         menuHilfe->addAction(action_ber_Qt);
 
@@ -118,6 +122,7 @@ public:
 #endif // QT_NO_TOOLTIP
         actionLetzten_Schritt_R_ckg_ngig_machen->setText(QApplication::translate("MainWindow", "Letzten Schritt R\303\274ckg\303\244ngig machen", Q_NULLPTR));
         action_ber_Qt->setText(QApplication::translate("MainWindow", "\303\234ber Qt ...", Q_NULLPTR));
+        action3D_Welt->setText(QApplication::translate("MainWindow", "3D Welt", Q_NULLPTR));
         menuDatei->setTitle(QApplication::translate("MainWindow", "Datei", Q_NULLPTR));
         menuErkennung->setTitle(QApplication::translate("MainWindow", "Erkennung", Q_NULLPTR));
         menuBearbeiten->setTitle(QApplication::translate("MainWindow", "Bearbeiten", Q_NULLPTR));
