@@ -26,8 +26,8 @@ SOURCES += main.cpp\
     mytranslator.cpp \
     haupt.cpp \
     shapedetector.cpp \
-    dreidworld.cpp \
-    my3dplane.cpp
+    my2dworld.cpp \
+    dreidworld.cpp
 
 HEADERS  += mainwindow.h \
     myitem.h editorgutter.h \
@@ -39,8 +39,8 @@ HEADERS  += mainwindow.h \
     ui_mainwindow.h \
     haupt.h \
     shapedetector.h \
-    dreidworld.h \
-    my3dplane.h
+    my2dworld.h \
+    dreidworld.h
 
 FORMS    += mainwindow.ui \
     haupt.ui

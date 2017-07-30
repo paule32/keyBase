@@ -4,6 +4,7 @@
 #include <Qt3DCore/QEntity>
 #include <Qt3DCore/QTransform>
 #include <Qt3DExtras/QPlaneMesh>
+#include <QMesh>
 
 class My3Dplane : public Qt3DCore::QEntity
 {

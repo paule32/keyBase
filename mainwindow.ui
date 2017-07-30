@@ -79,6 +79,7 @@
     <property name="title">
      <string>Datei</string>
     </property>
+    <addaction name="actionBeenden"/>
    </widget>
    <widget class="QMenu" name="menuErkennung">
     <property name="title">
@@ -86,6 +87,7 @@
     </property>
     <addaction name="actionObjekte_im_Bild"/>
     <addaction name="action3D_Welt"/>
+    <addaction name="action2D_Welt"/>
    </widget>
    <widget class="QMenu" name="menuBearbeiten">
     <property name="title">
@@ -127,12 +129,25 @@
     <string>3D Welt</string>
    </property>
   </action>
+  <action name="actionBeenden">
+   <property name="text">
+    <string>Beenden</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="action2D_Welt">
+   <property name="text">
+    <string>2D Welt</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>Form</class>
    <extends>QWidget</extends>
-   <header>form.h</header>
+   <header location="global">haupt.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

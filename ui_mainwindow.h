@@ -20,7 +20,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include "haupt.h"
+#include <haupt.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -31,6 +31,8 @@ public:
     QAction *actionLetzten_Schritt_R_ckg_ngig_machen;
     QAction *action_ber_Qt;
     QAction *action3D_Welt;
+    QAction *actionBeenden;
+    QAction *action2D_Welt;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
@@ -59,6 +61,10 @@ public:
         action_ber_Qt->setObjectName(QStringLiteral("action_ber_Qt"));
         action3D_Welt = new QAction(MainWindow);
         action3D_Welt->setObjectName(QStringLiteral("action3D_Welt"));
+        actionBeenden = new QAction(MainWindow);
+        actionBeenden->setObjectName(QStringLiteral("actionBeenden"));
+        action2D_Welt = new QAction(MainWindow);
+        action2D_Welt->setObjectName(QStringLiteral("action2D_Welt"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -103,8 +109,10 @@ public:
         menubar->addAction(menuBearbeiten->menuAction());
         menubar->addAction(menuErkennung->menuAction());
         menubar->addAction(menuHilfe->menuAction());
+        menuDatei->addAction(actionBeenden);
         menuErkennung->addAction(actionObjekte_im_Bild);
         menuErkennung->addAction(action3D_Welt);
+        menuErkennung->addAction(action2D_Welt);
         menuBearbeiten->addAction(actionLetzten_Schritt_R_ckg_ngig_machen);
         menuHilfe->addAction(action_ber_Qt);
 
@@ -123,6 +131,9 @@ public:
         actionLetzten_Schritt_R_ckg_ngig_machen->setText(QApplication::translate("MainWindow", "Letzten Schritt R\303\274ckg\303\244ngig machen", Q_NULLPTR));
         action_ber_Qt->setText(QApplication::translate("MainWindow", "\303\234ber Qt ...", Q_NULLPTR));
         action3D_Welt->setText(QApplication::translate("MainWindow", "3D Welt", Q_NULLPTR));
+        actionBeenden->setText(QApplication::translate("MainWindow", "Beenden", Q_NULLPTR));
+        actionBeenden->setShortcut(QApplication::translate("MainWindow", "Ctrl+X", Q_NULLPTR));
+        action2D_Welt->setText(QApplication::translate("MainWindow", "2D Welt", Q_NULLPTR));
         menuDatei->setTitle(QApplication::translate("MainWindow", "Datei", Q_NULLPTR));
         menuErkennung->setTitle(QApplication::translate("MainWindow", "Erkennung", Q_NULLPTR));
         menuBearbeiten->setTitle(QApplication::translate("MainWindow", "Bearbeiten", Q_NULLPTR));

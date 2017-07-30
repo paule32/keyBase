@@ -6,5 +6,7 @@
         <file>textures/diffuse.webp</file>
         <file>textures/normal.webp</file>
         <file>textures/specular.webp</file>
+        <file>test.obj</file>
+        <file>logo.obj</file>
     </qresource>
 </RCC>
