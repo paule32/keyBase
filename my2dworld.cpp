@@ -43,15 +43,12 @@ void my2dworld::mouseMoveEvent(QMouseEvent *event)
 
 int my2dworld::getTile(QPoint pt)
 {
-    int mat = path_poly.count();
-    int cnt = 0;
-    while (cnt++ != level_yt)
-    {   for (int c = 1; c < mat+1; ++c) {
-            if (path_poly.at(c-1).contains(QPointF(QPoint(pt))))
-            return c;
-        }
-    }
-    return 0;
+    int y,x;
+    for (y = 0; y < level_yt; ++y) {
+    for (x = 0; x < level_xt; ++x) {
+        if (path_poly.at(x*y).contains(QPointF(QPoint(pt))))
+        return x*y;
+    } } return x*y;
 }
 
 QPolygon my2dworld::setupPoly(int x, int y) {
