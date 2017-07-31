@@ -21,7 +21,7 @@ protected:
     void paintEvent(QPaintEvent *) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
-    QVector<QPolygon> pixies;
+    QVector<QPainterPath> path_poly;
     int poly;
 
     int m_xpos;

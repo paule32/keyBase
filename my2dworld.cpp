@@ -1,5 +1,9 @@
+#include <QPoint>
 #include <QVector>
 #include <QPolygon>
+#include <QPainterPath>
+
+#include <QDebug>
 
 #include "my2dworld.h"
 #include "mainwindow.h"
@@ -25,7 +29,9 @@ my2dworld::my2dworld(QWidget *parent)
 
     level_xt = level_yt = 5;
 
-    pixies.clear();
+    path_poly.clear();
+    path_poly.resize(0);
+
     poly = 0;
 }
 
@@ -37,11 +43,15 @@ void my2dworld::mouseMoveEvent(QMouseEvent *event)
 
 int my2dworld::getTile(QPoint pt)
 {
-    QPolygon *po = pixies.data();
-    for (int i = 0; i < pixies.size(); ++i) {
-    if (po[i].containsPoint(pt,Qt::OddEvenFill))
-        return i+1;
-    }   return 0;
+    int mat = path_poly.count();
+    int cnt = 0;
+    while (cnt++ != level_yt)
+    {   for (int c = 1; c < mat+1; ++c) {
+            if (path_poly.at(c-1).contains(QPointF(QPoint(pt))))
+            return c;
+        }
+    }
+    return 0;
 }
 
 QPolygon my2dworld::setupPoly(int x, int y) {
@@ -62,24 +72,25 @@ QPolygon my2dworld::setupPoly(int x, int y) {
 }
 
 void my2dworld::paintEvent(QPaintEvent *) {
-    QPainter p(this); int tmp;
+    QPainter p(this);
+    QPainterPath pp;
     QPolygon pg;
     QString buffer =
     QString("tile: %1 ").arg(tile_no);
 
     static int flag = 0;
-    tmp = 0;
 
     for (ymap = 1 ; ymap < level_yt+1; ymap++) {
     for (xmap = 1 ; xmap < level_xt+1; xmap++) {
+        pg = setupPoly(tile_width *(xmap-1),
+                       tile_height*(ymap-1));
         if (flag == 0) {
-            pg = setupPoly((tile_width *xmap) - tile_width,
-                           (tile_height*ymap) - tile_height);
-            pixies.append(pg);
+            pp.addPolygon(pg);
+            path_poly.append(pp);
         }
 
         p.setPen(QColor(Qt::black));
-        p.drawPolygon(pixies.at(tmp++));
+        p.drawPolygon(pg);
         p.drawText(50,50,buffer);
     }   }
 
