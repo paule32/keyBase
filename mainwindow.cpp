@@ -90,6 +90,5 @@ void MainWindow::on_action2D_Welt_triggered()
 {
     my2dworld * m2d = new my2dworld(nullptr);
     m2d->setGeometry(0,0,300,300);
-    m2d->drawBoard();
     m2d->show();
 }

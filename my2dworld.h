@@ -13,9 +13,9 @@ public:
     my2dworld(QWidget *parent);
     my2dworld();
 
-    void drawBoard();
-    QPolygon setupPoly(int x, int y);
     int getTile(QPoint pt);
+
+    QPolygon setupPoly(int x, int y);
 
 protected:
     void paintEvent(QPaintEvent *) override;

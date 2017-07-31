@@ -27,7 +27,7 @@ my2dworld::my2dworld(QWidget *parent)
     tile_width  = 64;
     tile_height = 64;
 
-    level_xt = level_yt = 5;
+    level_xt = level_yt = 4;
 
     path_poly.clear();
     path_poly.resize(0);
@@ -43,12 +43,14 @@ void my2dworld::mouseMoveEvent(QMouseEvent *event)
 
 int my2dworld::getTile(QPoint pt)
 {
-    int y,x;
-    for (y = 0; y < level_yt; ++y) {
-    for (x = 0; x < level_xt; ++x) {
-        if (path_poly.at(x*y).contains(QPointF(QPoint(pt))))
-        return x*y;
-    } } return x*y;
+    int mat = path_poly.count();
+    int cnt = 0;
+    while (cnt++ != level_yt)
+    {   for (int c = 1; c < mat+1; ++c) {
+        if (path_poly.at(c-1).contains(QPointF(QPoint(pt))))
+        return c;
+    }   }
+    return 0;
 }
 
 QPolygon my2dworld::setupPoly(int x, int y) {
@@ -70,28 +72,33 @@ QPolygon my2dworld::setupPoly(int x, int y) {
 
 void my2dworld::paintEvent(QPaintEvent *) {
     QPainter p(this);
-    QPainterPath pp;
-    QPolygon pg;
-    QString buffer =
-    QString("tile: %1 ").arg(tile_no);
+    QPainterPath pp1,pp2;
+    QPolygon pg1,pg2;
+    QString buffer;
 
-    static int flag = 0;
+    path_poly.clear();
+    path_poly.resize(0);
 
     for (ymap = 1 ; ymap < level_yt+1; ymap++) {
-    for (xmap = 1 ; xmap < level_xt+1; xmap++) {
-        pg = setupPoly(tile_width *(xmap-1),
-                       tile_height*(ymap-1));
-        if (flag == 0) {
-            pp.addPolygon(pg);
-            path_poly.append(pp);
-        }
+    for (xmap = 1 ; xmap < level_xt+2; xmap++) {
+        pg1= setupPoly((tile_width  )*(xmap-1),
+                       (tile_height )*(ymap-1));
+        pg2= setupPoly((tile_width  )*xmap-(tile_width/2),
+                       (tile_height )*ymap-(tile_height+32));
+        pp1.addPolygon(pg1);
+        pp2.addPolygon(pg2);
 
-        p.setPen(QColor(Qt::black));
-        p.drawPolygon(pg);
-        p.drawText(50,50,buffer);
+        path_poly.append(pp1);
+        path_poly.append(pp2);
+
+        p.fillPath(pp1,QBrush(QColor(Qt::black)));
+        p.fillPath(pp2,QBrush(QColor(Qt::white)));
+
+        p.setPen(QColor(Qt::black)); p.drawPolygon(pg1);
+        p.setPen(QColor(Qt::red));   p.drawPolygon(pg2);
     }   }
 
-    flag = 1;
+    buffer = QString("tile: %1 ").arg(tile_no);
+    p.setPen(QColor(Qt::black));
+    p.drawText(50,300,buffer);
 }
-
-void my2dworld::drawBoard() { }
