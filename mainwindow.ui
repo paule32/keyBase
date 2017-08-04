@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>574</width>
-    <height>461</height>
+    <width>622</width>
+    <height>521</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -65,7 +65,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>574</width>
+     <width>622</width>
      <height>22</height>
     </rect>
    </property>
@@ -107,10 +107,17 @@
     </property>
     <addaction name="actionWort_Recognition"/>
    </widget>
+   <widget class="QMenu" name="menuDesigner">
+    <property name="title">
+     <string>Designer</string>
+    </property>
+    <addaction name="actionFormular_Designer"/>
+   </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeiten"/>
    <addaction name="menuErkennung"/>
    <addaction name="menuTestBase"/>
+   <addaction name="menuDesigner"/>
    <addaction name="menuHilfe"/>
   </widget>
   <action name="actionObjekte_im_Bild">
@@ -152,6 +159,11 @@
   <action name="actionWort_Recognition">
    <property name="text">
     <string>Wort Recognition</string>
+   </property>
+  </action>
+  <action name="actionFormular_Designer">
+   <property name="text">
+    <string>Formular-Designer</string>
    </property>
   </action>
  </widget>

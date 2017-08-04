@@ -14,6 +14,7 @@
 #include "dreidworld.h"
 #include "my2dworld.h"
 #include "myeditcompleter.h"
+#include "myformdesigner.h"
 
 #include "ui_mainwindow.h"
 
@@ -194,4 +195,12 @@ void MainWindow::on_actionWort_Recognition_triggered()
     ui->formWindow->
     ui->dataEdit->appendPlainText(
     "word recognition on");
+}
+
+void MainWindow::on_actionFormular_Designer_triggered()
+{
+    MyFormDesigner * formDesigner = new
+    MyFormDesigner;
+
+    formDesigner->show();
 }

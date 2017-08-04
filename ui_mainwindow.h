@@ -34,6 +34,7 @@ public:
     QAction *actionBeenden;
     QAction *action2D_Welt;
     QAction *actionWort_Recognition;
+    QAction *actionFormular_Designer;
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout;
     QVBoxLayout *verticalLayout;
@@ -44,12 +45,13 @@ public:
     QMenu *menuBearbeiten;
     QMenu *menuHilfe;
     QMenu *menuTestBase;
+    QMenu *menuDesigner;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(574, 461);
+        MainWindow->resize(622, 521);
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -69,6 +71,8 @@ public:
         action2D_Welt->setObjectName(QStringLiteral("action2D_Welt"));
         actionWort_Recognition = new QAction(MainWindow);
         actionWort_Recognition->setObjectName(QStringLiteral("actionWort_Recognition"));
+        actionFormular_Designer = new QAction(MainWindow);
+        actionFormular_Designer->setObjectName(QStringLiteral("actionFormular_Designer"));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QStringLiteral("centralwidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -96,7 +100,7 @@ public:
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QStringLiteral("menubar"));
-        menubar->setGeometry(QRect(0, 0, 574, 22));
+        menubar->setGeometry(QRect(0, 0, 622, 22));
         menubar->setNativeMenuBar(true);
         menuDatei = new QMenu(menubar);
         menuDatei->setObjectName(QStringLiteral("menuDatei"));
@@ -109,12 +113,15 @@ public:
         menuHilfe->setObjectName(QStringLiteral("menuHilfe"));
         menuTestBase = new QMenu(menubar);
         menuTestBase->setObjectName(QStringLiteral("menuTestBase"));
+        menuDesigner = new QMenu(menubar);
+        menuDesigner->setObjectName(QStringLiteral("menuDesigner"));
         MainWindow->setMenuBar(menubar);
 
         menubar->addAction(menuDatei->menuAction());
         menubar->addAction(menuBearbeiten->menuAction());
         menubar->addAction(menuErkennung->menuAction());
         menubar->addAction(menuTestBase->menuAction());
+        menubar->addAction(menuDesigner->menuAction());
         menubar->addAction(menuHilfe->menuAction());
         menuDatei->addAction(actionBeenden);
         menuErkennung->addAction(actionObjekte_im_Bild);
@@ -123,6 +130,7 @@ public:
         menuBearbeiten->addAction(actionLetzten_Schritt_R_ckg_ngig_machen);
         menuHilfe->addAction(action_ber_Qt);
         menuTestBase->addAction(actionWort_Recognition);
+        menuDesigner->addAction(actionFormular_Designer);
 
         retranslateUi(MainWindow);
 
@@ -143,11 +151,13 @@ public:
         actionBeenden->setShortcut(QApplication::translate("MainWindow", "Ctrl+X", Q_NULLPTR));
         action2D_Welt->setText(QApplication::translate("MainWindow", "2D Welt", Q_NULLPTR));
         actionWort_Recognition->setText(QApplication::translate("MainWindow", "Wort Recognition", Q_NULLPTR));
+        actionFormular_Designer->setText(QApplication::translate("MainWindow", "Formular-Designer", Q_NULLPTR));
         menuDatei->setTitle(QApplication::translate("MainWindow", "Datei", Q_NULLPTR));
         menuErkennung->setTitle(QApplication::translate("MainWindow", "Erkennung", Q_NULLPTR));
         menuBearbeiten->setTitle(QApplication::translate("MainWindow", "Bearbeiten", Q_NULLPTR));
         menuHilfe->setTitle(QApplication::translate("MainWindow", "Hilfe", Q_NULLPTR));
         menuTestBase->setTitle(QApplication::translate("MainWindow", "TestBase", Q_NULLPTR));
+        menuDesigner->setTitle(QApplication::translate("MainWindow", "Designer", Q_NULLPTR));
     } // retranslateUi
 
 };

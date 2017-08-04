@@ -32,6 +32,7 @@ private slots:
     void on_action3D_Welt_triggered();
     void on_action2D_Welt_triggered();
     void on_actionWort_Recognition_triggered();
+    void on_actionFormular_Designer_triggered();
 };
 
 extern MainWindow *mainWin;

@@ -20,7 +20,7 @@ QMAKE_CXXFLAGS += \
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    myitem.cpp editorgutter.cc \
+    editorgutter.cc \
     parser_sbase.cc \
     testitem.cc \
     mytranslator.cpp \
@@ -28,10 +28,15 @@ SOURCES += main.cpp\
     shapedetector.cpp \
     my2dworld.cpp \
     dreidworld.cpp \
-    myeditcompleter.cpp
+    myeditcompleter.cpp \
+    myformdesigner.cpp \
+    mydesignerscene.cpp \
+    mydesignercomponents.cpp \
+    mylistwidgetitem.cpp \
+    mydesignergraphicsview.cpp
 
 HEADERS  += mainwindow.h \
-    myitem.h editorgutter.h \
+    editorgutter.h \
     typestruct.h \
     expression.h \
     ui_haupt.h \
@@ -42,7 +47,12 @@ HEADERS  += mainwindow.h \
     shapedetector.h \
     my2dworld.h \
     dreidworld.h \
-    myeditcompleter.h
+    myeditcompleter.h \
+    myformdesigner.h \
+    mydesignerscene.h \
+    mydesignercomponents.h \
+    mylistwidgetitem.h \
+    mydesignergraphicsview.h
 
 FORMS    += mainwindow.ui \
     haupt.ui
