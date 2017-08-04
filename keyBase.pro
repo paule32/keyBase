@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     haupt.cpp \
     shapedetector.cpp \
     my2dworld.cpp \
-    dreidworld.cpp
+    dreidworld.cpp \
+    myeditcompleter.cpp
 
 HEADERS  += mainwindow.h \
     myitem.h editorgutter.h \
@@ -40,7 +41,8 @@ HEADERS  += mainwindow.h \
     haupt.h \
     shapedetector.h \
     my2dworld.h \
-    dreidworld.h
+    dreidworld.h \
+    myeditcompleter.h
 
 FORMS    += mainwindow.ui \
     haupt.ui

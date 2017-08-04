@@ -5,6 +5,8 @@
 #include <QWidget>
 #include <QMenu>
 #include <QAction>
+#include <QCompleter>
+#include <QLineEdit>
 #include <QPlainTextEdit>
 #include <QSyntaxHighlighter>
 
@@ -19,6 +21,7 @@ public:
     void linePaintEvent(class QPaintEvent *event) ;
     int  gutterWidth();
     int  lines;
+    EditorGutter * getGutter() const;
 protected:
     void mousePressEvent(class QMouseEvent  *event) Q_DECL_OVERRIDE;
     void keyPressEvent  (class QKeyEvent    *event) Q_DECL_OVERRIDE;
@@ -27,13 +30,13 @@ public slots:
     void on_cursorPositionChanged();
     void on_gutterUpdate(int);
     void on_linesUpdate(const QRect &rect, int dy);
-private:
-    class Highlighter  * highlighter;
-    class EditorGutter * gutter;
-public slots:
     void on_dockHelpOpen();
     void on_parseText();
     void ShowContextMenu(const QPoint& pos);
+private:
+    QString textUnderCursor() const;
+    class Highlighter  * highlighter;
+    class EditorGutter * gutter;
 signals:
     void onHelpF1();
 };

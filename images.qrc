@@ -8,5 +8,7 @@
         <file>textures/specular.webp</file>
         <file>test.obj</file>
         <file>logo.obj</file>
+        <file>img/green_gras.png</file>
+        <file>img/road/road1.png</file>
     </qresource>
 </RCC>

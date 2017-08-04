@@ -20,6 +20,8 @@ public:
 protected:
     void paintEvent(QPaintEvent *) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void enterEvent(QEvent *event) override;
 
     QVector<QPainterPath> path_poly;
     int poly;

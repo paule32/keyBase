@@ -1,5 +1,11 @@
+#include <QCompleter>
 #include "editorgutter.h"
 #include "mainwindow.h"
+
+#include <QScrollBar>
+#include <QLineEdit>
+
+#include <QDebug>
 
 extern MainWindow *w;
 extern bool parseText(QString s);
@@ -84,6 +90,9 @@ void MyEditor::ShowContextMenu(const QPoint& pos) // this is a slot
     }
 }
 
+EditorGutter *
+MyEditor::getGutter() const { return gutter; }
+
 void MyEditor::resizeEvent(QResizeEvent *event)
 {
     QPlainTextEdit::resizeEvent(event);
@@ -115,9 +124,9 @@ void MyEditor::keyPressEvent(QKeyEvent *event)
         insertPlainText("    ");
         break;
 
-    default:
-        QPlainTextEdit::keyPressEvent(event);
-        break;
+    default: {
+            QPlainTextEdit::keyPressEvent(event);
+        }   break;
     }
 }
 

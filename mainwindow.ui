@@ -101,9 +101,16 @@
     </property>
     <addaction name="action_ber_Qt"/>
    </widget>
+   <widget class="QMenu" name="menuTestBase">
+    <property name="title">
+     <string>TestBase</string>
+    </property>
+    <addaction name="actionWort_Recognition"/>
+   </widget>
    <addaction name="menuDatei"/>
    <addaction name="menuBearbeiten"/>
    <addaction name="menuErkennung"/>
+   <addaction name="menuTestBase"/>
    <addaction name="menuHilfe"/>
   </widget>
   <action name="actionObjekte_im_Bild">
@@ -140,6 +147,11 @@
   <action name="action2D_Welt">
    <property name="text">
     <string>2D Welt</string>
+   </property>
+  </action>
+  <action name="actionWort_Recognition">
+   <property name="text">
+    <string>Wort Recognition</string>
    </property>
   </action>
  </widget>

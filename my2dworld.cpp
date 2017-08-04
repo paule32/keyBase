@@ -1,5 +1,7 @@
 #include <QPoint>
 #include <QVector>
+#include <QCursor>
+#include <QPicture>
 #include <QPolygon>
 #include <QPainterPath>
 
@@ -33,6 +35,15 @@ my2dworld::my2dworld(QWidget *parent)
     path_poly.resize(0);
 
     poly = 0;
+}
+
+void my2dworld::leaveEvent(QEvent *) { qApp->setOverrideCursor(QCursor(Qt::ArrowCursor)); }
+void my2dworld::enterEvent(QEvent *)
+{
+    QPixmap pixmap("./img/mouseptr.png");
+    if (pixmap.isNull()) qDebug() << "pixmap error";
+    QCursor mouse_pointer(pixmap,1,1);
+    qApp->setOverrideCursor(mouse_pointer);
 }
 
 void my2dworld::mouseMoveEvent(QMouseEvent *event)
@@ -76,29 +87,38 @@ void my2dworld::paintEvent(QPaintEvent *) {
     QPolygon pg1,pg2;
     QString buffer;
 
-    path_poly.clear();
-    path_poly.resize(0);
+    static int flag = 0;
 
     for (ymap = 1 ; ymap < level_yt+1; ymap++) {
     for (xmap = 1 ; xmap < level_xt+2; xmap++) {
-        pg1= setupPoly((tile_width  )*(xmap-1),
+        pg1= setupPoly((tile_width  )*(xmap-1)+32,
                        (tile_height )*(ymap-1));
-        pg2= setupPoly((tile_width  )*xmap-(tile_width/2),
+        pg2= setupPoly((tile_width  )*xmap-(tile_width/2)+32,
                        (tile_height )*ymap-(tile_height+32));
         pp1.addPolygon(pg1);
         pp2.addPolygon(pg2);
 
-        path_poly.append(pp1);
-        path_poly.append(pp2);
+        if (flag == 0) {
+            path_poly.append(pp1);
+            path_poly.append(pp2);
+        }
 
         p.fillPath(pp1,QBrush(QColor(Qt::black)));
         p.fillPath(pp2,QBrush(QColor(Qt::white)));
 
         p.setPen(QColor(Qt::black)); p.drawPolygon(pg1);
         p.setPen(QColor(Qt::red));   p.drawPolygon(pg2);
+
+        if ((tile_no >= 1) && (tile_no <= 50)) {
+            QPixmap pixmap("./img/road1.png");
+            p.fillPath(pp1,QBrush(QPixmap(pixmap)));
+            p.drawText(200,270,"gtaass");
+        }
     }   }
 
     buffer = QString("tile: %1 ").arg(tile_no);
     p.setPen(QColor(Qt::black));
     p.drawText(50,300,buffer);
+
+    flag = 1;
 }

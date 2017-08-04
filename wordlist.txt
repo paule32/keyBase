@@ -1,0 +1,36 @@
+#---------------------------------------------------------
+# Deutsch: Wortliste vom 04.08.2017
+# by Jens Kallup
+#
+# Syntax:
+# ; is delemiter:
+# word ; grammar-file ; kind of word ; singular ; plural ; speech
+#
+# kind of word alias:
+#  hf  = Höflichkeitsform
+# ppn  = Personalpronomen einzahl (Nominativ)
+#   m  = makulin
+#   f  = feminin
+#   n  = neutrum
+# ppk1 = Konjunktion Präsens I  (eins)
+# ppk2 = Konjunktion Präsens II (zwei) - sein
+#
+# %<filename>.grm = Wortliste für Anfangswort
+#
+# !cut = Trenn(schreibweise)
+# #eof = End Of File
+#---------------------------------------------------------
+ich		; %00001.grm    ; pp    ; ich       ; wir ;
+du		;               ; pp    ; du        ; ihr ;
+sie		; %00003.grm    ; hf    ; sie       ; sie ;
+er		;               ; ppm   ; er        ; sie ;
+sie		;               ; ppf   ;           ;     ;
+es	 	;               ; ppn   ;           ;     ;
+#--1--
+ich 		; %00001.grm    ; ppk1  ; ich !cut  ; wir !cut ;
+du		;               ; ppk1  ; du  !cut  ; ihr !cut ;
+sie		;               ; ppk1  ; sie !cut  ; sie !cut ;
+er		;               ; ppk1  ; er  !cut  ; sie !cut ;
+sie		;               ; ppk1  ; sie !cut  ;          ;
+es		;               ; ppk1  ; es  !cut  ;          ;
+#eof
