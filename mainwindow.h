@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QResizeEvent>
 
+#include "mydesignercomponents.h"
 #include "myeditcompleter.h"
 #include "ui_mainwindow.h"
 
@@ -14,15 +15,16 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     Ui::MainWindow *ui;
+
+    MyDesignerComponents * components_drag;
 private:
-    QAbstractItemModel  * modelFromFile(const QString& fileName);
-    QCompleter          * completer;
-    MyEditCompleter     * completingTextEdit;
+    QAbstractItemModel   * modelFromFile(const QString& fileName);
+    QCompleter           * completer;
+    MyEditCompleter      * completingTextEdit;
 private:
     void setWordRecognition();
 private slots:

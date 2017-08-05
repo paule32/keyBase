@@ -33,7 +33,9 @@ SOURCES += main.cpp\
     mydesignerscene.cpp \
     mydesignercomponents.cpp \
     mylistwidgetitem.cpp \
-    mydesignergraphicsview.cpp
+    mydesignergraphicsview.cpp \
+    mydesignercornergrabber.cpp \
+    mydesigneritem.cpp
 
 HEADERS  += mainwindow.h \
     editorgutter.h \
@@ -52,7 +54,9 @@ HEADERS  += mainwindow.h \
     mydesignerscene.h \
     mydesignercomponents.h \
     mylistwidgetitem.h \
-    mydesignergraphicsview.h
+    mydesignergraphicsview.h \
+    mydesignercornergrabber.h \
+    mydesigneritem.h
 
 FORMS    += mainwindow.ui \
     haupt.ui
