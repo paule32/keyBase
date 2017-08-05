@@ -31,25 +31,39 @@ void MyDesignerGraphicsView::keyPressEvent(QKeyEvent *event)
 
 void MyDesignerGraphicsView::dropEvent(QDropEvent * event)
 {
-    event->accept();
-
     qDebug() << "duspsr";
 
-    QObject * obj = event->source();
-    MyDesignerComponents * ptr = dynamic_cast<
-    MyDesignerComponents * >(obj);
+    if (event->source() == this) {
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+        return;
+    } else {
+        event->acceptProposedAction();
 
-    if (!ptr) {
-        qDebug() << ptr->currentItem()->text();
-        if (ptr->currentItem()->text() == "Push Button") {
-            DesignerPushButtonItem * item = new
-            DesignerPushButtonItem("PushMe",QRect(
-                event->pos().x() - 100,
-                event->pos().y() , 100, 100),
-                scene);
-            return;
-        }
+        DesignerPushButtonItem * item = new
+        DesignerPushButtonItem("PushMe",QRect(
+            event->pos().x()- 100,
+            event->pos().y(), 100, 100),
+            scene);
+        item->show();
     }
 }
 
-void MyDesignerGraphicsView::dropMoveEvent(QDragMoveEvent * event) { event->accept(); }
+void MyDesignerGraphicsView::dragMoveEvent(QDragMoveEvent * event) {
+    if (event->source() == this) {
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+    } else {
+        event->acceptProposedAction();
+    }
+}
+
+void MyDesignerGraphicsView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->source   () == this) {
+        event->setDropAction(Qt::MoveAction);
+        event->accept();
+    } else {
+        event->acceptProposedAction();
+    }
+}

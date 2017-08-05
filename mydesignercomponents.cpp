@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "mydesignercomponents.h"
+#include "mydesigneritem.h"
+#include "mydesignergraphicsview.h"
 #include "mylistwidgetitem.h"
 #include "editorgutter.h"
 
@@ -50,7 +52,7 @@ void MyDesignerComponents::mouseDoubleClickEvent(QMouseEvent *event)
 
 void MyDesignerComponents::mousePressEvent(QMouseEvent *event)
 {
-    QListWidgetItem *itemptr = itemAt(event->pos());
+    QListWidgetItem *itemptr = static_cast<QListWidgetItem*>(itemAt(event->pos()));
     if (!itemptr) return;
 
     if (itemptr->text() == QString("Standard")) {
@@ -59,7 +61,7 @@ void MyDesignerComponents::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    QListWidget::mousePressEvent(event);
+    //QListWidget::mousePressEvent(event);
 
     QMimeData * mimeData = new QMimeData;
     mimeData->setText("lops blops\n");
@@ -73,12 +75,21 @@ void MyDesignerComponents::mousePressEvent(QMouseEvent *event)
         Qt::MoveAction ,
         Qt::CopyAction);
 
-    Qt::DropAction tar = drag->start();
+    Qt::DropAction tar = drag->start( Qt::CopyAction |
+                                      Qt::MoveAction);
+    MyDesignerGraphicsView *p1 = findChild<MyDesignerGraphicsView *>("dBaseDesignerScene");
+    if ((p1 != nullptr) && (p1->hasFocus())) {
+    if (p1 != nullptr) {
+        qDebug() << "eome meine";
+        return;
+    }
+
     MyEditor *ptr = findChild<MyEditor *>("dBaseEditor");
     if ((ptr != nullptr) && (ptr->hasFocus())) {
-        ptr->setFocus();
-        ptr->on_cursorPositionChanged();
-        ptr->setFocus();
-        return;
+            ptr->setFocus();
+            ptr->on_cursorPositionChanged();
+            ptr->setFocus();
+            return;
+        }
     }
 }

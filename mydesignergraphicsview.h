@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 #include <QDragMoveEvent>
+#include <QDragEnterEvent>
 
 #include "mydesignerscene.h"
 
@@ -13,9 +14,10 @@ public:
     explicit MyDesignerGraphicsView(QWidget *parent = 0);
     MyDesignerScene * getScene() const { return scene; }
 protected:
-    virtual void keyPressEvent(QKeyEvent *event);
-    virtual void dropEvent(QDropEvent *event);
-    virtual void dropMoveEvent(QDragMoveEvent *event);
+    void keyPressEvent(QKeyEvent *event);
+    void dropEvent(QDropEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
+    void dragEnterEvent(QDragEnterEvent *event);
 private:
     MyDesignerScene * scene;
 };
