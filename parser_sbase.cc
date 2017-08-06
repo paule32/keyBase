@@ -71,15 +71,7 @@ using boost::phoenix::val;
 #include <QVariant>
 #include <QMessageBox>
 
-// ----------------------------------------
-// exception classes for error handling ...
-// ----------------------------------------
-class QStringError {
-public:
-    QStringError(QString str) { what = str; }
-    QStringError()            { what = QString("common mistake"); }
-    QString what;
-};
+#include "qstringerror.h"
 
 namespace boost { namespace spirit { namespace traits
 {
@@ -579,6 +571,99 @@ namespace kallup
         qi::rule<Iterator> my_skip;
     };
 
+
+    template <typename Iterator>
+    struct lisp_skipper : qi::grammar<Iterator>
+    {
+        lisp_skipper() : lisp_skipper::base_type(my_skip, "Lisp")
+        {
+            using boost::spirit::qi::lexeme;
+            using qi::ascii::char_;
+            using qi::ascii::space;
+            using qi::lit;
+            using qi::eol;
+            using qi::eoi;
+
+            using qi::on_error;
+            using qi::fail;
+
+            my_skip =
+                (lexeme[char_(" ;")]) >> *((char_) - eol) >> (eol | eoi)
+            ;
+
+            on_error<fail> (
+                  my_skip
+                , std::cout
+                << boost::phoenix::val("Error! Expecting comment")
+                << std::endl
+            );
+        }
+
+        lisp_skipper operator()(Iterator) { }
+        qi::rule<Iterator> my_skip;
+    };
+
+    template <typename Iterator, typename Skipper = lisp_skipper<Iterator>>
+    struct lisp_grammar : public qi::grammar<Iterator,Skipper>
+    {
+        qi::rule<Iterator, Skipper> start;
+        lisp_grammar() :
+        lisp_grammar::base_type(start)
+        {
+            using boost::spirit::qi::no_case;
+            using boost::spirit::ascii::char_;
+            using boost::spirit::ascii::string;
+            using boost::spirit::ascii::space;
+
+            using boost::spirit::qi::lexeme;
+            using boost::spirit::qi::lit;
+            using boost::spirit::qi::_val;
+
+            using qi::on_error;
+            using qi::fail;
+
+            start
+                = *((symsbols2 - (eol | eoi)) >> *char_(" \t\n\r"))
+                ;
+
+            expression =
+                term                            [ _val  = qi::_1 ]
+                >> *(   ('+' >> term            [ _val += qi::_1 ])
+                    |   ('-' >> term            [ _val -= qi::_1 ])
+                    )
+                ;
+
+            term =
+                factor                          [ _val  = qi::_1]
+                >> *(   ('*' >> factor          [ _val *= qi::_1])
+                    |   ('/' >> factor          [ _val /= qi::_1])
+                    )
+                ;
+
+            factor =
+                  n_expr                        [ _val = qi::_1 ]
+                |  '('   >> expression          [ _val = qi::_1 ] >> ')'
+                |   ('-' >> factor              [ _val = neg(qi::_1)])
+                |   ('+' >> factor              [ _val = qi::_1 ] )
+                ;
+
+            n_expr =
+                  int_   [ _val = qi::_1 ]
+                | float_ [ _val = qi::_1 ]
+                ;
+
+            symsbols2 =
+                  (char_("(") >> (int_ | float_) >> char_(")")) [ _val = qi::_1, std::cout << _val ]
+                ;
+        }
+
+        qi::rule<Iterator, Skipper>
+            symsbols2;
+
+        qi::rule<Iterator, expression_ast()>
+            expression, term, factor,
+            n_expr;
+    };
     template <typename Iterator, typename Skipper = dbase_skipper<Iterator>>
     struct dbase_grammar : public qi::grammar<Iterator,Skipper>
     {
@@ -812,6 +897,57 @@ namespace kallup
         return s;
     }
 
+    class Lisp {
+    public:
+        Lisp() { }
+        template <typename Iterator, typename Skipper>
+        bool pparse(Iterator &iter,
+                    Iterator &end,
+                    const lisp_grammar<Iterator, Skipper> &g) {
+            typedef lisp_skipper<Iterator> skipper;
+            skipper skips;
+
+            return
+            boost::spirit::qi::phrase_parse(
+            iter, end, g, skips, end_result);
+        }
+        bool InitParseText(QString text)
+        {
+            using namespace boost;
+            using namespace spirit::qi;
+            using namespace std;
+
+            std::string data = text.toStdString();
+            if (data.size() < 1)
+            throw new QStringError("No data for parser.");
+
+            auto str_std = std::string(data);
+            typedef std::string::const_iterator iterator_t;
+
+            iterator_t iter = str_std.begin();
+            iterator_t end  = str_std.end();
+
+            typedef lisp_skipper <iterator_t> skipper;
+            typedef lisp_grammar <iterator_t, skipper> grammar;
+
+            // ----------------
+            // remove trash ...
+            // ----------------
+            stempList.clear();
+            grammar pg;
+            return pparse(iter, end, pg);
+        }
+        bool start(QString src)  {
+            if (InitParseText(src)) {
+                QMessageBox::information(0,"Info","SUCCESS");
+                return true;
+            } else {
+                throw new QStringError;
+                return false;
+            }
+        }
+    };
+
     // -----------------------------------
     // parser oode for an dBase parser ...
     // -----------------------------------
@@ -879,13 +1015,15 @@ namespace kallup
     };
 }
 
+extern bool parse_lisp(QString src);
 // int main() {
 bool parseText(QString src)
 {
     using namespace kallup;
     try {
-        Parser<dBase> p;
-        return p.start(src);
+        return parse_lisp(src);
+        //Parser<Lisp> p;
+        //return p.start(src);
     }
     catch (QStringError *e) {
         QMessageBox::critical(0,"Error",
@@ -898,5 +1036,5 @@ bool parseText(QString src)
         "unknow error occur.");
     }
 
-    return false;
+    return false;;
 }

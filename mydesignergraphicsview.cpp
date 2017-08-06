@@ -24,6 +24,10 @@ MyDesignerGraphicsView::MyDesignerGraphicsView(QWidget * parent)
     qDebug() << "graph init";
 }
 
+void MyDesignerGraphicsView::resizeEvent(QResizeEvent *event)
+{
+}
+
 void MyDesignerGraphicsView::keyPressEvent(QKeyEvent *event)
 {
     //if (event->key() == Qt::Key_F1)
@@ -31,8 +35,6 @@ void MyDesignerGraphicsView::keyPressEvent(QKeyEvent *event)
 
 void MyDesignerGraphicsView::dropEvent(QDropEvent * event)
 {
-    qDebug() << "duspsr";
-
     if (event->source() == this) {
         event->setDropAction(Qt::MoveAction);
         event->accept();

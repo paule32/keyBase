@@ -15,6 +15,7 @@ public:
     MyDesignerScene * getScene() const { return scene; }
 protected:
     void keyPressEvent(QKeyEvent *event);
+    void resizeEvent(QResizeEvent *event);
     void dropEvent(QDropEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);

@@ -58,9 +58,10 @@ protected:
     class QPixmap         _pixmap;
 
     class MyDesignerCornerGrabber * _corners[4];
+    class QGraphicsItem * current_item;
 };
 
-class DesignerPushButtonItem:  public MyDesignerItem { public: explicit
+class DesignerPushButtonItem: public MyDesignerItem { public: explicit
       DesignerPushButtonItem(QString caption, QRect rect, MyDesignerScene *p);};
 
 class DesignerRadioButtonItem: public MyDesignerItem { public: explicit

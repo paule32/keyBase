@@ -19,7 +19,6 @@ MyFormDesigner::MyFormDesigner(QWidget *parent)
     MyDesignerGraphicsView *v = new
     MyDesignerGraphicsView(this);
 
-    mainWin->ui->formWindow->ui->editorGutter->hide();
-    mainWin->ui->formWindow->ui->editorGutter->setEnabled(false);
+    mainWin->ui->formWindow->ui->editorGutter->setEnabled(true);
     mainWin->ui->formWindow->ui->editLayout->addWidget(this);
 }

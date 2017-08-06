@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     mylistwidgetitem.cpp \
     mydesignergraphicsview.cpp \
     mydesignercornergrabber.cpp \
-    mydesigneritem.cpp
+    mydesigneritem.cpp \
+    parser_lisp.cpp
 
 HEADERS  += mainwindow.h \
     editorgutter.h \
@@ -56,7 +57,8 @@ HEADERS  += mainwindow.h \
     mylistwidgetitem.h \
     mydesignergraphicsview.h \
     mydesignercornergrabber.h \
-    mydesigneritem.h
+    mydesigneritem.h \
+    qstringerror.h
 
 FORMS    += mainwindow.ui \
     haupt.ui

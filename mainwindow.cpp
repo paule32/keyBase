@@ -6,6 +6,7 @@
 #include <QClipboard>
 #include <QListWidgetItem>
 #include <QStringListModel>
+#include <QMenu>
 
 #include <QDebug>
 
@@ -199,6 +200,17 @@ void MainWindow::on_actionWort_Recognition_triggered()
 
 void MainWindow::on_actionFormular_Designer_triggered()
 {
+    menuBar()->clear();
+
+    QMenu *menu_01 = new QMenu("Datei");
+    QMenu *menu_02 = new QMenu("Bearbeiten");
+
+    QMenu *menu_11 = new QMenu("Beenden");
+    menu_01->addMenu(menu_11);
+
+    menuBar()->addMenu(menu_01);
+    menuBar()->addMenu(menu_02);
+
     MyFormDesigner * formDesigner = new
     MyFormDesigner;
 
